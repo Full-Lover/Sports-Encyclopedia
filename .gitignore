@@ -1,0 +1,4 @@
+/bin/
+/.cache/
+/web/dist/
+/web/node_modules/
