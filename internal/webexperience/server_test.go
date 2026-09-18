@@ -6,13 +6,20 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+
+	"github.com/full-lover/sports-encyclopedia/internal/publishedatlas"
 )
+
+func newTestHandler(t *testing.T) http.Handler {
+	t.Helper()
+	return New(t.TempDir(), publishedatlas.NewMemoryReader())
+}
 
 func TestHomePage(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/", nil)
 	response := httptest.NewRecorder()
 
-	New(t.TempDir()).ServeHTTP(response, request)
+	newTestHandler(t).ServeHTTP(response, request)
 
 	result := response.Result()
 	defer result.Body.Close()
@@ -43,7 +50,7 @@ func TestHealth(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/healthz", nil)
 	response := httptest.NewRecorder()
 
-	New(t.TempDir()).ServeHTTP(response, request)
+	newTestHandler(t).ServeHTTP(response, request)
 
 	if response.Code != http.StatusOK || response.Body.String() != "ok\n" {
 		t.Fatalf("health response = %d %q", response.Code, response.Body.String())
@@ -54,7 +61,7 @@ func TestFaviconIsEmptyUntilBrandingIsDecided(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/favicon.ico", nil)
 	response := httptest.NewRecorder()
 
-	New(t.TempDir()).ServeHTTP(response, request)
+	newTestHandler(t).ServeHTTP(response, request)
 
 	if response.Code != http.StatusNoContent {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusNoContent)
@@ -65,7 +72,7 @@ func TestUnknownPage(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/missing", nil)
 	response := httptest.NewRecorder()
 
-	New(t.TempDir()).ServeHTTP(response, request)
+	newTestHandler(t).ServeHTTP(response, request)
 
 	if response.Code != http.StatusNotFound {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusNotFound)
@@ -76,7 +83,7 @@ func TestHomeRejectsPost(t *testing.T) {
 	request := httptest.NewRequest(http.MethodPost, "/", nil)
 	response := httptest.NewRecorder()
 
-	New(t.TempDir()).ServeHTTP(response, request)
+	newTestHandler(t).ServeHTTP(response, request)
 
 	if response.Code != http.StatusMethodNotAllowed {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusMethodNotAllowed)

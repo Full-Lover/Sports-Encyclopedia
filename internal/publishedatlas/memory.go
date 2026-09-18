@@ -18,7 +18,7 @@ func (reader *memoryReader) Read(ctx context.Context, request ReadRequest) (Read
 	if err := ctx.Err(); err != nil {
 		return ReadResult{}, err
 	}
-	if request.Kind != ReadMap || request.SnapshotID == "" {
+	if _, err := ParseSnapshotID(string(request.SnapshotID)); request.Kind != ReadMap || err != nil {
 		return ReadResult{}, &ReadFault{Code: FaultInvalidRequest}
 	}
 

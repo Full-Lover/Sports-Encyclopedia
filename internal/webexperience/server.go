@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"net/http"
 	"path/filepath"
+
+	"github.com/full-lover/sports-encyclopedia/internal/publishedatlas"
 )
 
 //go:embed templates/*.html
@@ -15,9 +17,10 @@ type pageData struct {
 	Title string
 }
 
-func New(staticDir string) http.Handler {
+func New(staticDir string, atlasReader publishedatlas.Reader) http.Handler {
 	home := template.Must(template.ParseFS(templates, "templates/home.html"))
 	mux := http.NewServeMux()
+	registerAtlasRoutes(mux, atlasReader)
 
 	mux.Handle("GET /assets/", noCache(http.StripPrefix(
 		"/assets/",

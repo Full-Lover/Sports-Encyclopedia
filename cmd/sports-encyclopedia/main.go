@@ -8,6 +8,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/full-lover/sports-encyclopedia/internal/publishedatlas"
 	"github.com/full-lover/sports-encyclopedia/internal/webexperience"
 )
 
@@ -36,8 +37,11 @@ func run(args []string) error {
 	}
 
 	server := &http.Server{
-		Addr:              address,
-		Handler:           webexperience.New("web/dist"),
+		Addr: address,
+		Handler: webexperience.New(
+			"web/dist",
+			publishedatlas.NewMemoryReader(publishedatlas.PreviewMapDocument()),
+		),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      15 * time.Second,

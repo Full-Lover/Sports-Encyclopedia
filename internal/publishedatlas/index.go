@@ -8,7 +8,27 @@ import (
 
 type SnapshotID string
 
+func ParseSnapshotID(raw string) (SnapshotID, error) {
+	if len(raw) == 0 || len(raw) > 64 {
+		return "", fmt.Errorf("invalid snapshot id")
+	}
+	for _, character := range raw {
+		if (character >= 'a' && character <= 'z') ||
+			(character >= 'A' && character <= 'Z') ||
+			(character >= '0' && character <= '9') ||
+			character == '-' || character == '_' {
+			continue
+		}
+		return "", fmt.Errorf("invalid snapshot id")
+	}
+	return SnapshotID(raw), nil
+}
+
 type LeagueCode string
+
+type TeamID string
+
+type VenueID string
 
 const (
 	LeagueNBA LeagueCode = "NBA"
@@ -23,33 +43,43 @@ type LeagueSummary struct {
 	Path string     `json:"path"`
 }
 
+type TeamVisualKind string
+
+const TeamVisualAbbreviation TeamVisualKind = "ABBREVIATION"
+
 type TeamVisual struct {
-	Kind string `json:"kind"`
-	Text string `json:"text"`
-	Alt  string `json:"alt"`
+	Kind TeamVisualKind `json:"kind"`
+	Text string         `json:"text"`
+	Alt  string         `json:"alt"`
 }
 
+type PhotoKind string
+
+const PhotoPlaceholder PhotoKind = "PLACEHOLDER"
+
 type Photo struct {
-	Kind string `json:"kind"`
-	Alt  string `json:"alt"`
+	Kind PhotoKind `json:"kind"`
+	Alt  string    `json:"alt"`
+}
+
+type TeamPreviewActions struct {
+	OfficialWebsiteURL string `json:"officialWebsiteUrl"`
+	SharePath          string `json:"sharePath"`
+	DetailsPath        string `json:"detailsPath"`
 }
 
 type TeamPreview struct {
-	TeamID     string     `json:"teamId"`
-	TeamName   string     `json:"teamName"`
-	TeamVisual TeamVisual `json:"teamVisual"`
-	VenuePhoto Photo      `json:"venuePhoto"`
-	VenueName  string     `json:"venueName"`
-	League     LeagueCode `json:"league"`
-	Actions    struct {
-		OfficialWebsiteURL string `json:"officialWebsiteUrl"`
-		SharePath          string `json:"sharePath"`
-		DetailsPath        string `json:"detailsPath"`
-	} `json:"actions"`
+	TeamID     TeamID             `json:"teamId"`
+	TeamName   string             `json:"teamName"`
+	TeamVisual TeamVisual         `json:"teamVisual"`
+	VenuePhoto Photo              `json:"venuePhoto"`
+	VenueName  string             `json:"venueName"`
+	League     LeagueCode         `json:"league"`
+	Actions    TeamPreviewActions `json:"actions"`
 }
 
 type MapTeam struct {
-	TeamID    string      `json:"teamId"`
+	TeamID    TeamID      `json:"teamId"`
 	Name      string      `json:"name"`
 	League    LeagueCode  `json:"league"`
 	VenueName string      `json:"venueName"`
@@ -58,7 +88,7 @@ type MapTeam struct {
 }
 
 type MapPlace struct {
-	VenueID     string `json:"venueId"`
+	VenueID     VenueID `json:"venueId"`
 	Coordinates struct {
 		Latitude  float64 `json:"latitude"`
 		Longitude float64 `json:"longitude"`
