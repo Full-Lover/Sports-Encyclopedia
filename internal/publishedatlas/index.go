@@ -103,9 +103,16 @@ type MapDocument struct {
 	Places     []MapPlace      `json:"places"`
 }
 
+type HomeDocument struct {
+	SnapshotID SnapshotID
+}
+
 type ReadKind string
 
-const ReadMap ReadKind = "MAP"
+const (
+	ReadHome ReadKind = "HOME"
+	ReadMap  ReadKind = "MAP"
+)
 
 type ReadRequest struct {
 	Kind       ReadKind
@@ -113,7 +120,8 @@ type ReadRequest struct {
 }
 
 type ReadResult struct {
-	Map *MapDocument
+	Home *HomeDocument
+	Map  *MapDocument
 }
 
 type ReadFaultCode string
@@ -121,6 +129,7 @@ type ReadFaultCode string
 const (
 	FaultInvalidRequest  ReadFaultCode = "INVALID_REQUEST"
 	FaultSnapshotMissing ReadFaultCode = "SNAPSHOT_NOT_FOUND"
+	FaultNotPublished    ReadFaultCode = "SNAPSHOT_NOT_PUBLISHED"
 )
 
 type ReadFault struct {

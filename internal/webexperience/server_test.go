@@ -12,7 +12,7 @@ import (
 
 func newTestHandler(t *testing.T) http.Handler {
 	t.Helper()
-	return New(t.TempDir(), publishedatlas.NewMemoryReader())
+	return New(t.TempDir(), publishedatlas.NewMemoryReader(publishedatlas.PreviewMapDocument()))
 }
 
 func TestHomePage(t *testing.T) {
@@ -37,12 +37,22 @@ func TestHomePage(t *testing.T) {
 	for _, expected := range []string{
 		`<html lang="en">`,
 		`id="map-app"`,
+		`data-snapshot-id="preview-0001"`,
 		`/assets/app.css`,
 		`/assets/app.js`,
 	} {
 		if !strings.Contains(string(body), expected) {
 			t.Errorf("body does not contain %q", expected)
 		}
+	}
+}
+
+func TestHomeWithoutPublishedSnapshot(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/", nil)
+	response := httptest.NewRecorder()
+	New(t.TempDir(), publishedatlas.NewMemoryReader()).ServeHTTP(response, request)
+	if response.Code != http.StatusServiceUnavailable {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusServiceUnavailable)
 	}
 }
 

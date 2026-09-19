@@ -14,7 +14,8 @@ import (
 var templates embed.FS
 
 type pageData struct {
-	Title string
+	Title      string
+	SnapshotID publishedatlas.SnapshotID
 }
 
 func New(staticDir string, atlasReader publishedatlas.Reader) http.Handler {
@@ -35,16 +36,23 @@ func New(staticDir string, atlasReader publishedatlas.Reader) http.Handler {
 		response.Header().Set("Cache-Control", "no-store")
 		response.WriteHeader(http.StatusNoContent)
 	})
-	mux.HandleFunc("GET /{$}", func(response http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("GET /{$}", func(response http.ResponseWriter, request *http.Request) {
+		result, err := atlasReader.Read(request.Context(), publishedatlas.ReadRequest{Kind: publishedatlas.ReadHome})
+		if err != nil || result.Home == nil {
+			http.Error(response, "The atlas is temporarily unavailable.", http.StatusServiceUnavailable)
+			return
+		}
 		var rendered bytes.Buffer
 		if err := home.ExecuteTemplate(&rendered, "home.html", pageData{
-			Title: "Sports Encyclopedia",
+			Title:      "Sports Encyclopedia",
+			SnapshotID: result.Home.SnapshotID,
 		}); err != nil {
 			http.Error(response, "The page could not be rendered.", http.StatusInternalServerError)
 			return
 		}
 
 		response.Header().Set("Content-Type", "text/html; charset=utf-8")
+		response.Header().Set("Cache-Control", "no-cache")
 		response.Header().Set("X-Content-Type-Options", "nosniff")
 		response.WriteHeader(http.StatusOK)
 		_, _ = rendered.WriteTo(response)

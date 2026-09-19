@@ -3,20 +3,31 @@ package publishedatlas
 import "context"
 
 type memoryReader struct {
+	active    SnapshotID
 	documents map[SnapshotID]MapDocument
 }
 
 func NewMemoryReader(documents ...MapDocument) Reader {
 	stored := make(map[SnapshotID]MapDocument, len(documents))
+	var active SnapshotID
 	for _, document := range documents {
+		if active == "" {
+			active = document.SnapshotID
+		}
 		stored[document.SnapshotID] = cloneMapDocument(document)
 	}
-	return &memoryReader{documents: stored}
+	return &memoryReader{active: active, documents: stored}
 }
 
 func (reader *memoryReader) Read(ctx context.Context, request ReadRequest) (ReadResult, error) {
 	if err := ctx.Err(); err != nil {
 		return ReadResult{}, err
+	}
+	if request.Kind == ReadHome && request.SnapshotID == "" {
+		if reader.active == "" {
+			return ReadResult{}, &ReadFault{Code: FaultNotPublished}
+		}
+		return ReadResult{Home: &HomeDocument{SnapshotID: reader.active}}, nil
 	}
 	if _, err := ParseSnapshotID(string(request.SnapshotID)); request.Kind != ReadMap || err != nil {
 		return ReadResult{}, &ReadFault{Code: FaultInvalidRequest}

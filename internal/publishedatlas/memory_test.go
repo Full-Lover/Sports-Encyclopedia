@@ -60,3 +60,23 @@ func TestMemoryReaderRejectsUnsupportedRequest(t *testing.T) {
 		t.Fatalf("fault = %v, want %s", err, FaultInvalidRequest)
 	}
 }
+
+func TestMemoryReaderReturnsTheActiveHomeSnapshot(t *testing.T) {
+	reader := NewMemoryReader(MapDocument{SnapshotID: "snapshot-1"})
+
+	result, err := reader.Read(context.Background(), ReadRequest{Kind: ReadHome})
+	if err != nil {
+		t.Fatalf("read home: %v", err)
+	}
+	if result.Home == nil || result.Home.SnapshotID != "snapshot-1" {
+		t.Fatalf("home = %#v", result.Home)
+	}
+}
+
+func TestMemoryReaderRejectsHomeWithoutPublication(t *testing.T) {
+	_, err := NewMemoryReader().Read(context.Background(), ReadRequest{Kind: ReadHome})
+	var fault *ReadFault
+	if !errors.As(err, &fault) || fault.Code != FaultNotPublished {
+		t.Fatalf("fault = %v, want %s", err, FaultNotPublished)
+	}
+}
