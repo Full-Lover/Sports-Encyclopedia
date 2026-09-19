@@ -3,6 +3,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 
 import App from "./App.vue";
 
+vi.mock("./TeamMap.vue", () => ({
+  default: { props: ["places"], template: '<div data-test-map></div>' },
+}));
+
 const mapDocument = {
   snapshotId: "preview-0001",
   leagues: [
@@ -31,11 +35,13 @@ describe("App", () => {
     await flushPromises();
 
     expect(fetch).toHaveBeenCalledWith("/_atlas/snapshots/preview-0001/map");
-    expect(wrapper.get("h1").text()).toBe("Explore teams by league");
+    expect(wrapper.get("h1").text()).toBe("Explore teams by place");
+    expect(wrapper.get("[data-test-map]").exists()).toBe(true);
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(wrapper.text()).toContain("TD Garden");
     expect(wrapper.text()).toContain("Teams from this league are not available in the preview yet.");
-    expect(wrapper.get("a").attributes("href")).toBe("https://www.nba.com/celtics/");
+    expect(wrapper.get('a[aria-label="Boston Celtics official website (opens in a new tab)"]').attributes("href"))
+      .toBe("https://www.nba.com/celtics/");
   });
 
   it("offers a retry when the document cannot be loaded", async () => {
@@ -87,6 +93,6 @@ describe("App", () => {
     await flushPromises();
 
     expect(wrapper.text()).toContain("Boston Celtics");
-    expect(wrapper.find("a").exists()).toBe(false);
+    expect(wrapper.find('a[aria-label="Boston Celtics official website (opens in a new tab)"]').exists()).toBe(false);
   });
 });

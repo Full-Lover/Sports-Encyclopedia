@@ -59,6 +59,58 @@ h1 {
   font-weight: 600;
 }
 
+.map-section {
+  padding-top: 2.25rem;
+}
+
+.map-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.map-heading h2 {
+  font-size: 1.55rem;
+}
+
+.map-heading a {
+  color: #1e547f;
+  font-weight: 600;
+}
+
+.team-map {
+  height: min(58vh, 30rem);
+  min-height: 20rem;
+  border: 1px solid #b9c6d2;
+  border-radius: 0.6rem;
+  z-index: 0;
+}
+
+.team-map-marker {
+  display: grid;
+  place-items: center;
+  border: 3px solid #fff;
+  border-radius: 50%;
+  background: #274869;
+  box-shadow: 0 2px 8px #17263866;
+  color: #fff;
+  font-size: 0.8rem;
+  font-weight: 800;
+}
+
+.team-map-marker:focus-visible {
+  outline: 3px solid #f3b247;
+  outline-offset: 3px;
+}
+
+.map-warning {
+  margin-top: 0.7rem;
+  color: #6d4920;
+  font-size: 0.9rem;
+}
+
 .directory {
   padding: 2.25rem 0 4rem;
 }
@@ -174,6 +226,15 @@ button {
 }
 
 @media (max-width: 38rem) {
+  .map-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .team-map {
+    height: 22rem;
+  }
+
   .league-heading {
     grid-template-columns: 3.5rem 1fr;
   }

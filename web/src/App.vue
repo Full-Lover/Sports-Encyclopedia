@@ -1,5 +1,6 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
+import TeamMap from "./TeamMap.vue";
 
 const props = defineProps({
   snapshotId: { type: String, required: true },
@@ -60,10 +61,18 @@ onMounted(loadMap);
   <div class="app-shell">
     <header class="page-header">
       <p class="project-name">Sports Encyclopedia</p>
-      <h1>Explore teams by league</h1>
+      <h1>Explore teams by place</h1>
       <p class="page-intro">A growing guide to the geography of North American professional sports.</p>
       <p class="preview-note">Preview data — league coverage is limited.</p>
     </header>
+
+    <section v-if="state === 'ready'" class="map-section" aria-labelledby="map-title">
+      <div class="map-heading">
+        <h2 id="map-title">Team map</h2>
+        <a href="#directory-title">Browse teams as a list</a>
+      </div>
+      <TeamMap :places="document.places" />
+    </section>
 
     <section class="directory" aria-labelledby="directory-title">
       <div class="directory-heading">
