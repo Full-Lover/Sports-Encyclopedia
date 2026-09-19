@@ -107,21 +107,34 @@ type HomeDocument struct {
 	SnapshotID SnapshotID
 }
 
+type TeamPageDocument struct {
+	SnapshotID         SnapshotID
+	TeamID             TeamID
+	Name               string
+	League             LeagueCode
+	VenueName          string
+	OfficialWebsiteURL string
+	Preview            bool
+}
+
 type ReadKind string
 
 const (
 	ReadHome ReadKind = "HOME"
 	ReadMap  ReadKind = "MAP"
+	ReadTeam ReadKind = "TEAM"
 )
 
 type ReadRequest struct {
 	Kind       ReadKind
 	SnapshotID SnapshotID
+	Slug       string
 }
 
 type ReadResult struct {
 	Home *HomeDocument
 	Map  *MapDocument
+	Team *TeamPageDocument
 }
 
 type ReadFaultCode string
@@ -130,6 +143,7 @@ const (
 	FaultInvalidRequest  ReadFaultCode = "INVALID_REQUEST"
 	FaultSnapshotMissing ReadFaultCode = "SNAPSHOT_NOT_FOUND"
 	FaultNotPublished    ReadFaultCode = "SNAPSHOT_NOT_PUBLISHED"
+	FaultTeamMissing     ReadFaultCode = "TEAM_NOT_FOUND"
 )
 
 type ReadFault struct {

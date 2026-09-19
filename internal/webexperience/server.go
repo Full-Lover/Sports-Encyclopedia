@@ -22,6 +22,7 @@ func New(staticDir string, atlasReader publishedatlas.Reader) http.Handler {
 	home := template.Must(template.ParseFS(templates, "templates/home.html"))
 	mux := http.NewServeMux()
 	registerAtlasRoutes(mux, atlasReader)
+	registerTeamRoute(mux, atlasReader)
 
 	mux.Handle("GET /assets/", noCache(http.StripPrefix(
 		"/assets/",

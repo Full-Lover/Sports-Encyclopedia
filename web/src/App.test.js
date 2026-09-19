@@ -23,7 +23,10 @@ const mapDocument = {
       league: "NBA",
       venueName: "TD Garden",
       visual: { text: "BOS" },
-      preview: { actions: { officialWebsiteUrl: "https://www.nba.com/celtics/" } },
+      preview: { actions: {
+        officialWebsiteUrl: "https://www.nba.com/celtics/",
+        detailsPath: "/teams/boston-celtics",
+      } },
     }],
   }],
 };
@@ -45,6 +48,7 @@ describe("App", () => {
     expect(wrapper.text()).toContain("Teams from this league are not available in the preview yet.");
     expect(wrapper.get('a[aria-label="Boston Celtics official website (opens in a new tab)"]').attributes("href"))
       .toBe("https://www.nba.com/celtics/");
+    expect(wrapper.get(".details-link").attributes("href")).toBe("/teams/boston-celtics");
   });
 
   it("offers a retry when the document cannot be loaded", async () => {
@@ -128,5 +132,16 @@ describe("App", () => {
 
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(wrapper.find('a[aria-label="Boston Celtics official website (opens in a new tab)"]').exists()).toBe(false);
+  });
+
+  it("does not render an unsafe team-details link", async () => {
+    const unsafe = structuredClone(mapDocument);
+    unsafe.places[0].teams[0].preview.actions.detailsPath = "//another-site.example/team";
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => unsafe }));
+    const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
+    await flushPromises();
+
+    expect(wrapper.text()).toContain("Boston Celtics");
+    expect(wrapper.find(".details-link").exists()).toBe(false);
   });
 });

@@ -80,3 +80,24 @@ func TestMemoryReaderRejectsHomeWithoutPublication(t *testing.T) {
 		t.Fatalf("fault = %v, want %s", err, FaultNotPublished)
 	}
 }
+
+func TestMemoryReaderReturnsPreviewTeamPage(t *testing.T) {
+	reader := NewMemoryReader(PreviewMapDocument())
+	result, err := reader.Read(context.Background(), ReadRequest{Kind: ReadTeam, Slug: "boston-celtics"})
+	if err != nil {
+		t.Fatalf("read team: %v", err)
+	}
+	if result.Team == nil || result.Team.SnapshotID != PreviewSnapshotID ||
+		result.Team.Name != "Boston Celtics" || result.Team.VenueName != "TD Garden" || !result.Team.Preview {
+		t.Fatalf("team = %#v", result.Team)
+	}
+}
+
+func TestMemoryReaderRejectsUnknownTeam(t *testing.T) {
+	reader := NewMemoryReader(PreviewMapDocument())
+	_, err := reader.Read(context.Background(), ReadRequest{Kind: ReadTeam, Slug: "unknown-team"})
+	var fault *ReadFault
+	if !errors.As(err, &fault) || fault.Code != FaultTeamMissing {
+		t.Fatalf("fault = %v, want %s", err, FaultTeamMissing)
+	}
+}

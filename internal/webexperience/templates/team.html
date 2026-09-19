@@ -1,0 +1,36 @@
+{{define "team.html" -}}
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    {{if .Team.Preview}}<meta name="robots" content="noindex">{{end}}
+    <meta name="description" content="{{.Team.Name}} home venue and team information.">
+    <title>{{.Team.Name}} | Sports Encyclopedia</title>
+    <link rel="stylesheet" href="/assets/app.css">
+  </head>
+  <body>
+    <main class="team-page">
+      <a class="back-link" href="/">Back to team map</a>
+      <header class="team-page-header">
+        <p class="team-page-league">{{.Team.League}}</p>
+        <h1>{{.Team.Name}}</h1>
+      </header>
+      {{if .Team.Preview}}<p class="preview-note">Preview data — this team page is still being filled in.</p>{{end}}
+      {{if .OfficialSite}}<p class="team-page-action"><a href="{{.OfficialSite}}" target="_blank" rel="noopener noreferrer">Visit official team website</a></p>{{end}}
+      <section class="team-page-section" aria-labelledby="venue-title">
+        <h2 id="venue-title">Home venue</h2>
+        <p>{{.Team.VenueName}}</p>
+      </section>
+      <section class="team-page-section" aria-labelledby="coach-title">
+        <h2 id="coach-title">Head coach or manager</h2>
+        <p>Not available in this preview.</p>
+      </section>
+      <section class="team-page-section" aria-labelledby="roster-title">
+        <h2 id="roster-title">Roster</h2>
+        <p>Not available in this preview.</p>
+      </section>
+    </main>
+  </body>
+</html>
+{{- end}}

@@ -19,6 +19,10 @@ function officialSite(url) {
   }
 }
 
+function teamDetailsPath(path) {
+  return typeof path === "string" && /^\/teams\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path) ? path : null;
+}
+
 const leagues = computed(() => {
   if (!document.value) return [];
   return document.value.leagues.map((league) => ({
@@ -27,6 +31,7 @@ const leagues = computed(() => {
       place.teams.filter((team) => team.league === league.code).map((team) => ({
         ...team,
         officialSite: officialSite(team.preview?.actions?.officialWebsiteUrl),
+        detailsPath: teamDetailsPath(team.preview?.actions?.detailsPath),
       })),
     ),
   }));
@@ -124,6 +129,7 @@ onMounted(loadMap);
                 <h4>{{ team.name }}</h4>
                 <p>{{ team.venueName }}</p>
               </div>
+              <a v-if="team.detailsPath" class="details-link" :href="team.detailsPath">View details</a>
               <a v-if="team.officialSite" :href="team.officialSite" target="_blank" rel="noopener noreferrer" :aria-label="`${team.name} official website (opens in a new tab)`">Official site</a>
             </li>
           </ul>

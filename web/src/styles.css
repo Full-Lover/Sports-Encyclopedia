@@ -221,9 +221,12 @@ h1 {
 }
 
 .team-row a {
-  margin-left: auto;
   color: #1e547f;
   font-weight: 600;
+}
+
+.team-row .details-link {
+  margin-left: auto;
 }
 
 .empty-league {
@@ -242,6 +245,47 @@ h1 {
   border: 1px solid #b9c6d2;
   border-radius: 0.6rem;
   background: #fff;
+}
+
+.team-page {
+  max-width: 52rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
+}
+
+.back-link, .team-page-action a {
+  color: #1e547f;
+  font-weight: 700;
+}
+
+.team-page-header {
+  margin-top: 3rem;
+  padding-bottom: 2rem;
+  border-bottom: 3px solid #274869;
+}
+
+.team-page-league {
+  margin-bottom: 0.8rem;
+  color: #345a7d;
+  font-weight: 700;
+}
+
+.team-page-action {
+  margin-top: 1.5rem;
+}
+
+.team-page-section {
+  padding: 1.7rem 0;
+  border-bottom: 1px solid #b9c6d2;
+}
+
+.team-page-section h2 {
+  margin-bottom: 0.55rem;
+  font-size: 1.35rem;
+}
+
+.team-page-section p {
+  color: #536579;
 }
 
 button {
@@ -286,7 +330,7 @@ button {
     flex-wrap: wrap;
   }
 
-  .team-row a {
+  .team-row .details-link {
     margin-left: 4.3rem;
   }
 }
