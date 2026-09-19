@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import App from "./App.vue";
 
 vi.mock("./TeamMap.vue", () => ({
-  default: { props: ["places"], template: '<div data-test-map></div>' },
+  default: {
+    props: ["places"],
+    template: '<div data-test-map>{{ places.flatMap((place) => place.teams.map((team) => team.name)).join(", ") }}</div>',
+  },
 }));
 
 const mapDocument = {
@@ -57,6 +60,37 @@ describe("App", () => {
     await flushPromises();
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(fetch).toHaveBeenCalledTimes(2);
+  });
+
+  it("filters the map and directory together and restores all leagues", async () => {
+    const withNFL = structuredClone(mapDocument);
+    withNFL.places.push({
+      teams: [{
+        teamId: "nfl-new-york-giants", name: "New York Giants", league: "NFL",
+        venueName: "MetLife Stadium", visual: { text: "NYG" },
+        preview: { actions: { officialWebsiteUrl: "https://www.giants.com/" } },
+      }],
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => withNFL }));
+    const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
+    await flushPromises();
+
+    expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
+    expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
+    await wrapper.get('button[aria-pressed="true"]').trigger("click");
+    expect(wrapper.get("[data-test-map]").text()).not.toContain("Boston Celtics");
+    expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
+    expect(wrapper.text()).not.toContain("TD Garden");
+    expect(wrapper.text()).toContain("MetLife Stadium");
+
+    expect(wrapper.findAll(".league-filter").map((button) => button.attributes("aria-pressed")))
+      .toEqual(["false", "true"]);
+    await wrapper.findAll(".league-filter")[1].trigger("click");
+    expect(wrapper.get("[data-test-map]").text()).toBe("");
+    expect(wrapper.text()).toContain("Select a league to see teams.");
+    await wrapper.get(".show-all").trigger("click");
+    expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
+    expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
   });
 
   it("rejects data from a different snapshot", async () => {

@@ -80,6 +80,36 @@ h1 {
   font-weight: 600;
 }
 
+.league-filters {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.55rem;
+  margin-bottom: 1rem;
+}
+
+.league-filters button {
+  margin: 0;
+  padding: 0.45rem 0.85rem;
+  border: 1px solid #274869;
+  border-radius: 0.3rem;
+  background: #fff;
+  color: #274869;
+  font-weight: 700;
+}
+
+.league-filters button[aria-pressed="true"] {
+  background: #274869;
+  color: #fff;
+}
+
+.league-filters .show-all {
+  margin-left: auto;
+  border-color: transparent;
+  background: transparent;
+  text-decoration: underline;
+}
+
 .team-map {
   height: min(58vh, 30rem);
   min-height: 20rem;
@@ -199,6 +229,11 @@ h1 {
 .empty-league {
   margin: 0.8rem 0 0 5rem;
   font-size: 0.95rem;
+}
+
+.empty-selection {
+  padding: 1.35rem 0;
+  color: #536579;
 }
 
 .feedback {

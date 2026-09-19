@@ -8,6 +8,7 @@ const props = defineProps({
 
 const document = ref(null);
 const state = ref("loading");
+const selectedLeagues = ref([]);
 
 function officialSite(url) {
   try {
@@ -31,6 +32,22 @@ const leagues = computed(() => {
   }));
 });
 
+const visibleLeagues = computed(() => leagues.value.filter((league) => selectedLeagues.value.includes(league.code)));
+const visiblePlaces = computed(() => (document.value?.places ?? []).flatMap((place) => {
+  const teams = place.teams.filter((team) => selectedLeagues.value.includes(team.league));
+  return teams.length ? [{ ...place, teams }] : [];
+}));
+
+function toggleLeague(code) {
+  selectedLeagues.value = selectedLeagues.value.includes(code)
+    ? selectedLeagues.value.filter((selected) => selected !== code)
+    : [...selectedLeagues.value, code];
+}
+
+function showAllLeagues() {
+  selectedLeagues.value = document.value.leagues.map((league) => league.code);
+}
+
 async function loadMap() {
   state.value = "loading";
   try {
@@ -48,6 +65,7 @@ async function loadMap() {
       throw new Error("Map document does not match this page");
     }
     document.value = next;
+    showAllLeagues();
     state.value = "ready";
   } catch {
     state.value = "error";
@@ -71,7 +89,13 @@ onMounted(loadMap);
         <h2 id="map-title">Team map</h2>
         <a href="#directory-title">Browse teams as a list</a>
       </div>
-      <TeamMap :places="document.places" />
+      <div class="league-filters" role="group" aria-label="Filter by league">
+        <button v-for="league in document.leagues" :key="league.code" type="button"
+          class="league-filter" :aria-pressed="selectedLeagues.includes(league.code)"
+          @click="toggleLeague(league.code)">{{ league.code }}</button>
+        <button type="button" class="show-all" @click="showAllLeagues">Show all</button>
+      </div>
+      <TeamMap :key="selectedLeagues.join(',')" :places="visiblePlaces" />
     </section>
 
     <section class="directory" aria-labelledby="directory-title">
@@ -86,7 +110,8 @@ onMounted(loadMap);
         <button type="button" @click="loadMap">Try again</button>
       </div>
       <div v-else class="league-list">
-        <section v-for="league in leagues" :key="league.code" class="league-section" :aria-labelledby="`league-${league.code}`">
+        <p v-if="visibleLeagues.length === 0" class="empty-selection">Select a league to see teams.</p>
+        <section v-for="league in visibleLeagues" :key="league.code" class="league-section" :aria-labelledby="`league-${league.code}`">
           <div class="league-heading">
             <h3 :id="`league-${league.code}`">{{ league.code }}</h3>
             <p>{{ league.name }}</p>
