@@ -1,7 +1,7 @@
 :root {
-  color: #17202a;
-  background: #f2f0e9;
-  font-family: Georgia, "Times New Roman", serif;
+  color: #172638;
+  background: #eef2f5;
+  font-family: "Segoe UI", Arial, sans-serif;
   font-synthesis: none;
 }
 
@@ -16,32 +16,181 @@ body {
 }
 
 .app-shell {
-  display: grid;
-  min-height: 100vh;
-  place-content: center;
-  padding: 2rem;
-  text-align: center;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: clamp(1.25rem, 4vw, 3rem);
 }
 
-.eyebrow {
-  margin: 0 0 0.75rem;
-  color: #52606d;
-  font-family: Arial, sans-serif;
-  font-size: 0.75rem;
+.page-header {
+  padding: clamp(1.5rem, 5vw, 3.5rem) 0 2.5rem;
+  border-bottom: 3px solid #274869;
+}
+
+.project-name {
+  margin: 0 0 1.8rem;
+  color: #345a7d;
+  font-size: 0.9rem;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
+}
+
+h1, h2, h3, h4, p {
+  margin: 0;
 }
 
 h1 {
-  max-width: 12ch;
-  margin: 0;
-  font-size: clamp(2.5rem, 8vw, 5.5rem);
-  line-height: 0.95;
+  max-width: 18ch;
+  font-size: clamp(2.3rem, 6vw, 4.4rem);
+  letter-spacing: -0.045em;
+  line-height: 1.03;
 }
 
-.status {
-  margin: 1.5rem 0 0;
-  color: #52606d;
-  font-family: Arial, sans-serif;
+.page-intro {
+  max-width: 38rem;
+  margin-top: 1.25rem;
+  color: #43566b;
+  font-size: 1.1rem;
+  line-height: 1.55;
+}
+
+.preview-note {
+  margin-top: 1.4rem;
+  color: #345a7d;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.directory {
+  padding: 2.25rem 0 4rem;
+}
+
+.directory-heading h2 {
+  font-size: 1.55rem;
+}
+
+.directory-heading p {
+  margin-top: 0.4rem;
+  color: #536579;
+}
+
+.league-list {
+  margin-top: 1.5rem;
+  border-top: 1px solid #b9c6d2;
+}
+
+.league-section {
+  padding: 1.35rem 0;
+  border-bottom: 1px solid #b9c6d2;
+}
+
+.league-heading {
+  display: grid;
+  grid-template-columns: 4rem 1fr auto;
+  align-items: baseline;
+  gap: 1rem;
+}
+
+.league-heading h3 {
+  font-size: 1.3rem;
+}
+
+.league-heading p, .team-count, .empty-league {
+  color: #536579;
+}
+
+.team-count {
+  font-size: 0.9rem;
+}
+
+.team-list {
+  margin: 1.15rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.team-row {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: #fff;
+  border: 1px solid #cfdae4;
+  border-radius: 0.6rem;
+}
+
+.team-mark {
+  display: grid;
+  width: 3.3rem;
+  height: 3.3rem;
+  flex: none;
+  place-items: center;
+  border-radius: 50%;
+  background: #e2eaf1;
+  color: #274869;
+  font-weight: 800;
+}
+
+.team-row h4 {
+  font-size: 1.1rem;
+}
+
+.team-row p {
+  margin-top: 0.2rem;
+  color: #536579;
+}
+
+.team-row a {
+  margin-left: auto;
+  color: #1e547f;
+  font-weight: 600;
+}
+
+.empty-league {
+  margin: 0.8rem 0 0 5rem;
+  font-size: 0.95rem;
+}
+
+.feedback {
+  margin-top: 1.5rem;
+  padding: 1.3rem;
+  border: 1px solid #b9c6d2;
+  border-radius: 0.6rem;
+  background: #fff;
+}
+
+button {
+  margin-top: 1rem;
+  padding: 0.65rem 1rem;
+  border: 0;
+  border-radius: 0.3rem;
+  background: #274869;
+  color: #fff;
+  font: inherit;
+  cursor: pointer;
+}
+
+:focus-visible {
+  outline: 3px solid #1976a4;
+  outline-offset: 3px;
+}
+
+@media (max-width: 38rem) {
+  .league-heading {
+    grid-template-columns: 3.5rem 1fr;
+  }
+
+  .team-count {
+    grid-column: 2;
+  }
+
+  .empty-league {
+    margin-left: 4.5rem;
+  }
+
+  .team-row {
+    flex-wrap: wrap;
+  }
+
+  .team-row a {
+    margin-left: 4.3rem;
+  }
 }

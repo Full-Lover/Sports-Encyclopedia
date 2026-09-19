@@ -5,6 +5,11 @@ import { defineConfig } from "vite";
 
 export default defineConfig(({ mode }) => ({
   plugins: [vue()],
+  server: {
+    proxy: {
+      "/_atlas": process.env.ATLAS_DEV_BACKEND || "http://127.0.0.1:8080",
+    },
+  },
   define: {
     "process.env.NODE_ENV": JSON.stringify(mode),
   },
