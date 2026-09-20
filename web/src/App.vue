@@ -1,6 +1,7 @@
 <script setup>
 import { computed, onMounted, ref } from "vue";
 import TeamMap from "./TeamMap.vue";
+import { officialSite, teamPath } from "./teamLinks.js";
 
 const props = defineProps({
   snapshotId: { type: String, required: true },
@@ -10,19 +11,6 @@ const document = ref(null);
 const state = ref("loading");
 const selectedLeagues = ref([]);
 
-function officialSite(url) {
-  try {
-    const parsed = new URL(url);
-    return parsed.protocol === "https:" ? parsed.href : null;
-  } catch {
-    return null;
-  }
-}
-
-function teamDetailsPath(path) {
-  return typeof path === "string" && /^\/teams\/[a-z0-9]+(?:-[a-z0-9]+)*$/.test(path) ? path : null;
-}
-
 const leagues = computed(() => {
   if (!document.value) return [];
   return document.value.leagues.map((league) => ({
@@ -31,7 +19,7 @@ const leagues = computed(() => {
       place.teams.filter((team) => team.league === league.code).map((team) => ({
         ...team,
         officialSite: officialSite(team.preview?.actions?.officialWebsiteUrl),
-        detailsPath: teamDetailsPath(team.preview?.actions?.detailsPath),
+        detailsPath: teamPath(team.preview?.actions?.detailsPath),
       })),
     ),
   }));
