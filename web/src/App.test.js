@@ -43,6 +43,9 @@ describe("App", () => {
     expect(fetch).toHaveBeenCalledWith("/_atlas/snapshots/preview-0001/map");
     expect(wrapper.get("h1").text()).toBe("Explore teams by place");
     expect(wrapper.get("[data-test-map]").exists()).toBe(true);
+    expect(wrapper.find(".directory").exists()).toBe(false);
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
+    expect(wrapper.find("[data-test-map]").exists()).toBe(false);
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(wrapper.text()).toContain("TD Garden");
     expect(wrapper.text()).toContain("Teams from this league are not available in the preview yet.");
@@ -81,20 +84,23 @@ describe("App", () => {
 
     expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
     expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
-    await wrapper.get('button[aria-pressed="true"]').trigger("click");
+    await wrapper.findAll(".league-filter")[0].trigger("click");
     expect(wrapper.get("[data-test-map]").text()).not.toContain("Boston Celtics");
     expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
+    expect(wrapper.find("[data-test-map]").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("TD Garden");
     expect(wrapper.text()).toContain("MetLife Stadium");
 
     expect(wrapper.findAll(".league-filter").map((button) => button.attributes("aria-pressed")))
       .toEqual(["false", "true"]);
     await wrapper.findAll(".league-filter")[1].trigger("click");
-    expect(wrapper.get("[data-test-map]").text()).toBe("");
     expect(wrapper.text()).toContain("Select a league to see teams.");
     await wrapper.get(".show-all").trigger("click");
+    await wrapper.findAll(".view-switch button")[0].trigger("click");
     expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
     expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
+    expect(fetch).toHaveBeenCalledTimes(1);
   });
 
   it("rejects data from a different snapshot", async () => {
@@ -129,6 +135,7 @@ describe("App", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => unsafe }));
     const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
     await flushPromises();
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
 
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(wrapper.find('a[aria-label="Boston Celtics official website (opens in a new tab)"]').exists()).toBe(false);
@@ -140,6 +147,7 @@ describe("App", () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => unsafe }));
     const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
     await flushPromises();
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
 
     expect(wrapper.text()).toContain("Boston Celtics");
     expect(wrapper.find(".details-link").exists()).toBe(false);

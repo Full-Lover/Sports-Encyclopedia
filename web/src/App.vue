@@ -10,6 +10,7 @@ const props = defineProps({
 const document = ref(null);
 const state = ref("loading");
 const selectedLeagues = ref([]);
+const viewMode = ref("map");
 
 const leagues = computed(() => {
   if (!document.value) return [];
@@ -77,52 +78,56 @@ onMounted(loadMap);
       <p class="preview-note">Preview data — league coverage is limited.</p>
     </header>
 
-    <section v-if="state === 'ready'" class="map-section" aria-labelledby="map-title">
-      <div class="map-heading">
-        <h2 id="map-title">Team map</h2>
-        <a href="#directory-title">Browse teams as a list</a>
+    <section class="explorer" aria-labelledby="explorer-title">
+      <div class="explorer-heading">
+        <h2 id="explorer-title">Explore teams</h2>
+        <div v-if="state === 'ready'" class="view-switch" role="group" aria-label="Choose view">
+          <button type="button" :aria-pressed="viewMode === 'map'" @click="viewMode = 'map'">Map</button>
+          <button type="button" :aria-pressed="viewMode === 'list'" @click="viewMode = 'list'">List</button>
+        </div>
       </div>
-      <div class="league-filters" role="group" aria-label="Filter by league">
+      <div v-if="state === 'ready'" class="league-filters" role="group" aria-label="Filter by league">
         <button v-for="league in document.leagues" :key="league.code" type="button"
           class="league-filter" :aria-pressed="selectedLeagues.includes(league.code)"
           @click="toggleLeague(league.code)">{{ league.code }}</button>
         <button type="button" class="show-all" @click="showAllLeagues">Show all</button>
       </div>
-      <TeamMap :key="selectedLeagues.join(',')" :places="visiblePlaces" />
-    </section>
-
-    <section class="directory" aria-labelledby="directory-title">
-      <div class="directory-heading">
-        <h2 id="directory-title">Team directory</h2>
-        <p>Browse the teams currently included in this preview.</p>
-      </div>
-
       <p v-if="state === 'loading'" class="feedback" role="status">Loading teams…</p>
       <div v-else-if="state === 'error'" class="feedback" role="alert">
-        <p>Team data is unavailable. Try again to reload the directory.</p>
+        <p>Team data is unavailable. Try again to reload it.</p>
         <button type="button" @click="loadMap">Try again</button>
       </div>
-      <div v-else class="league-list">
-        <p v-if="visibleLeagues.length === 0" class="empty-selection">Select a league to see teams.</p>
-        <section v-for="league in visibleLeagues" :key="league.code" class="league-section" :aria-labelledby="`league-${league.code}`">
-          <div class="league-heading">
-            <h3 :id="`league-${league.code}`">{{ league.code }}</h3>
-            <p>{{ league.name }}</p>
-            <span class="team-count">{{ league.teams.length }} {{ league.teams.length === 1 ? 'team' : 'teams' }}</span>
-          </div>
-          <ul v-if="league.teams.length" class="team-list">
-            <li v-for="team in league.teams" :key="team.teamId" class="team-row">
-              <span class="team-mark" aria-hidden="true">{{ team.visual.text }}</span>
-              <div>
-                <h4>{{ team.name }}</h4>
-                <p>{{ team.venueName }}</p>
-              </div>
-              <a v-if="team.detailsPath" class="details-link" :href="team.detailsPath">View details</a>
-              <a v-if="team.officialSite" :href="team.officialSite" target="_blank" rel="noopener noreferrer" :aria-label="`${team.name} official website (opens in a new tab)`">Official site</a>
-            </li>
-          </ul>
-          <p v-else class="empty-league">Teams from this league are not available in the preview yet.</p>
-        </section>
+      <div v-else-if="viewMode === 'map'" class="map-view">
+        <p v-if="selectedLeagues.length === 0" class="empty-selection" role="status">Select a league to see teams.</p>
+        <TeamMap :key="selectedLeagues.join(',')" :places="visiblePlaces" />
+      </div>
+      <div v-else class="directory" aria-labelledby="directory-title">
+        <div class="directory-heading">
+          <h3 id="directory-title">Team directory</h3>
+          <p>Browse the teams currently included in this preview.</p>
+        </div>
+        <div class="league-list">
+          <p v-if="visibleLeagues.length === 0" class="empty-selection">Select a league to see teams.</p>
+          <section v-for="league in visibleLeagues" :key="league.code" class="league-section" :aria-labelledby="`league-${league.code}`">
+            <div class="league-heading">
+              <h4 :id="`league-${league.code}`">{{ league.code }}</h4>
+              <p>{{ league.name }}</p>
+              <span class="team-count">{{ league.teams.length }} {{ league.teams.length === 1 ? 'team' : 'teams' }}</span>
+            </div>
+            <ul v-if="league.teams.length" class="team-list">
+              <li v-for="team in league.teams" :key="team.teamId" class="team-row">
+                <span class="team-mark" aria-hidden="true">{{ team.visual.text }}</span>
+                <div>
+                  <h5>{{ team.name }}</h5>
+                  <p>{{ team.venueName }}</p>
+                </div>
+                <a v-if="team.detailsPath" class="details-link" :href="team.detailsPath">View details</a>
+                <a v-if="team.officialSite" :href="team.officialSite" target="_blank" rel="noopener noreferrer" :aria-label="`${team.name} official website (opens in a new tab)`">Official site</a>
+              </li>
+            </ul>
+            <p v-else class="empty-league">Teams from this league are not available in the preview yet.</p>
+          </section>
+        </div>
       </div>
     </section>
   </div>

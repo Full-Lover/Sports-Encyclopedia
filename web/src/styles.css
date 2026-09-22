@@ -59,25 +59,42 @@ h1 {
   font-weight: 600;
 }
 
-.map-section {
+.explorer {
   padding-top: 2.25rem;
 }
 
-.map-heading {
+.explorer-heading {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   justify-content: space-between;
   gap: 1rem;
   margin-bottom: 1rem;
 }
 
-.map-heading h2 {
+.explorer-heading h2 {
   font-size: 1.55rem;
 }
 
-.map-heading a {
-  color: #1e547f;
-  font-weight: 600;
+.view-switch {
+  display: inline-flex;
+  padding: 0.2rem;
+  border: 1px solid #b9c6d2;
+  border-radius: 0.45rem;
+  background: #fff;
+}
+
+.view-switch button {
+  margin: 0;
+  padding: 0.45rem 0.9rem;
+  border: 0;
+  background: transparent;
+  color: #274869;
+  font-weight: 700;
+}
+
+.view-switch button[aria-pressed="true"] {
+  background: #274869;
+  color: #fff;
 }
 
 .league-filters {
@@ -108,6 +125,10 @@ h1 {
   border-color: transparent;
   background: transparent;
   text-decoration: underline;
+}
+
+.map-view {
+  margin-top: 1rem;
 }
 
 .team-map-frame {
@@ -274,10 +295,10 @@ h1 {
 }
 
 .directory {
-  padding: 2.25rem 0 4rem;
+  padding: 1.5rem 0 4rem;
 }
 
-.directory-heading h2 {
+.directory-heading h3 {
   font-size: 1.55rem;
 }
 
@@ -303,7 +324,7 @@ h1 {
   gap: 1rem;
 }
 
-.league-heading h3 {
+.league-heading h4 {
   font-size: 1.3rem;
 }
 
@@ -343,7 +364,8 @@ h1 {
   font-weight: 800;
 }
 
-.team-row h4 {
+.team-row h5 {
+  margin: 0;
   font-size: 1.1rem;
 }
 
@@ -437,7 +459,7 @@ button {
 }
 
 @media (max-width: 38rem) {
-  .map-heading {
+  .explorer-heading {
     align-items: flex-start;
     flex-direction: column;
   }
