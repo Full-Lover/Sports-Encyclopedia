@@ -46,6 +46,10 @@ func TestMapDocument(t *testing.T) {
 	if team := result.Places[0].Teams[0]; team.OfficialGroup != "Eastern Conference" || team.Division != "Atlantic Division" {
 		t.Fatalf("team alignment = %q / %q", team.OfficialGroup, team.Division)
 	}
+	if preview := result.Places[0].Teams[0].Preview; preview.RegularGameCapacity != 19156 ||
+		preview.OpenedYear != 1995 || preview.VenueFactsSourceURL != "https://www.tdgarden.com/about-td-garden" {
+		t.Fatalf("venue facts = %#v", preview)
+	}
 }
 
 func TestMapDocumentRejectsInvalidSnapshotID(t *testing.T) {

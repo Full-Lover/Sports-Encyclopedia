@@ -21,6 +21,9 @@
       <section class="team-page-section" aria-labelledby="venue-title">
         <h2 id="venue-title">Home venue</h2>
         <p>{{.Team.VenueName}}</p>
+        <p>Regular-game capacity: {{if .Capacity}}{{.Capacity}}{{else}}Not available{{end}}</p>
+        <p>Opened: {{if .OpenedYear}}{{.OpenedYear}}{{else}}Not available{{end}}</p>
+        {{if .VenueSource}}<p>Source: <a href="{{.VenueSource}}" target="_blank" rel="noopener noreferrer">{{.Team.VenueName}} venue facts</a></p>{{end}}
       </section>
       <section class="team-page-section" aria-labelledby="coach-title">
         <h2 id="coach-title">Head coach or manager</h2>

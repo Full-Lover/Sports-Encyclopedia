@@ -20,6 +20,8 @@ func TestPreviewTeamPage(t *testing.T) {
 	for _, expected := range []string{
 		"Boston Celtics", "TD Garden", "Eastern Conference", "Atlantic Division", `content="noindex"`,
 		`href="https://www.nba.com/celtics/"`, "Not available in this preview.",
+		"Regular-game capacity: 19,156", "Opened: 1995",
+		`href="https://www.tdgarden.com/about-td-garden"`,
 	} {
 		if !strings.Contains(response.Body.String(), expected) {
 			t.Errorf("page does not contain %q", expected)
@@ -51,12 +53,16 @@ func TestTeamPageEscapesNamesAndRejectsUnsafeOfficialLink(t *testing.T) {
 	handler := New(t.TempDir(), readerFunc(func(context.Context, publishedatlas.ReadRequest) (publishedatlas.ReadResult, error) {
 		return publishedatlas.ReadResult{Team: &publishedatlas.TeamPageDocument{
 			Name: "<script>alert(1)</script>", OfficialWebsiteURL: "javascript:alert(1)",
+			VenueFactsSourceURL: "javascript:alert(1)", RegularGameCapacity: -1, OpenedYear: 3000,
 		}}, nil
 	}))
 	response := httptest.NewRecorder()
 	handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/teams/example", nil))
 	if response.Code != http.StatusOK || strings.Contains(response.Body.String(), "<script>") ||
-		strings.Contains(response.Body.String(), "Visit official team website") {
+		strings.Contains(response.Body.String(), "Visit official team website") ||
+		strings.Contains(response.Body.String(), "Source:") ||
+		!strings.Contains(response.Body.String(), "Regular-game capacity: Not available") ||
+		!strings.Contains(response.Body.String(), "Opened: Not available") {
 		t.Fatalf("unsafe page response: %d %q", response.Code, response.Body.String())
 	}
 }

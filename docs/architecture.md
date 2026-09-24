@@ -386,6 +386,7 @@ interface TeamPreviewView {
   venueName: string;
   regularGameCapacity?: number;
   openedYear?: number;
+  venueFactsSourceUrl?: string;
   league: LeagueCode;
   actions: {
     officialWebsiteUrl: string;

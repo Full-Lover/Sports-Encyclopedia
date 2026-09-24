@@ -69,13 +69,16 @@ type TeamPreviewActions struct {
 }
 
 type TeamPreview struct {
-	TeamID     TeamID             `json:"teamId"`
-	TeamName   string             `json:"teamName"`
-	TeamVisual TeamVisual         `json:"teamVisual"`
-	VenuePhoto Photo              `json:"venuePhoto"`
-	VenueName  string             `json:"venueName"`
-	League     LeagueCode         `json:"league"`
-	Actions    TeamPreviewActions `json:"actions"`
+	TeamID              TeamID             `json:"teamId"`
+	TeamName            string             `json:"teamName"`
+	TeamVisual          TeamVisual         `json:"teamVisual"`
+	VenuePhoto          Photo              `json:"venuePhoto"`
+	VenueName           string             `json:"venueName"`
+	RegularGameCapacity int                `json:"regularGameCapacity,omitempty"`
+	OpenedYear          int                `json:"openedYear,omitempty"`
+	VenueFactsSourceURL string             `json:"venueFactsSourceUrl,omitempty"`
+	League              LeagueCode         `json:"league"`
+	Actions             TeamPreviewActions `json:"actions"`
 }
 
 type MapTeam struct {
@@ -110,15 +113,18 @@ type HomeDocument struct {
 }
 
 type TeamPageDocument struct {
-	SnapshotID         SnapshotID
-	TeamID             TeamID
-	Name               string
-	League             LeagueCode
-	OfficialGroup      string
-	Division           string
-	VenueName          string
-	OfficialWebsiteURL string
-	Preview            bool
+	SnapshotID          SnapshotID
+	TeamID              TeamID
+	Name                string
+	League              LeagueCode
+	OfficialGroup       string
+	Division            string
+	VenueName           string
+	RegularGameCapacity int
+	OpenedYear          int
+	VenueFactsSourceURL string
+	OfficialWebsiteURL  string
+	Preview             bool
 }
 
 type ReadKind string

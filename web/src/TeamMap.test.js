@@ -10,6 +10,8 @@ const celtics = {
   visual: { text: "BOS" },
   preview: {
     venuePhoto: { kind: "PLACEHOLDER", alt: "TD Garden photo unavailable" },
+    regularGameCapacity: 19156,
+    openedYear: 1995,
     actions: {
       officialWebsiteUrl: "https://www.nba.com/celtics/",
       sharePath: "/teams/boston-celtics",
@@ -34,6 +36,8 @@ describe("TeamMap preview", () => {
 
     expect(wrapper.get(".team-preview").text()).toContain("Boston Celtics");
     expect(wrapper.get(".team-preview").text()).toContain("TD Garden");
+    expect(wrapper.get(".preview-facts").text()).toContain("19,156");
+    expect(wrapper.get(".preview-facts").text()).toContain("1995");
     expect(wrapper.get(".preview-photo").text()).toContain("Venue photo unavailable");
     expect(wrapper.get('a[href="https://www.nba.com/celtics/"]').exists()).toBe(true);
     expect(wrapper.get('a[href="/teams/boston-celtics"]').text()).toBe("View details");
@@ -41,6 +45,18 @@ describe("TeamMap preview", () => {
 
     await wrapper.get('.preview-close').trigger("click");
     expect(wrapper.find(".team-preview").exists()).toBe(false);
+    wrapper.unmount();
+  });
+
+  it("marks missing or invalid venue facts as unavailable", async () => {
+    const incomplete = structuredClone(celtics);
+    delete incomplete.preview.regularGameCapacity;
+    incomplete.preview.openedYear = 3000;
+    const wrapper = mount(TeamMap, { props: { places: [{ ...place, teams: [incomplete] }] } });
+    await wrapper.get(".leaflet-marker-icon").trigger("click");
+
+    expect(wrapper.findAll(".preview-facts dd").map((value) => value.text()))
+      .toEqual(["Not available", "Not available"]);
     wrapper.unmount();
   });
 

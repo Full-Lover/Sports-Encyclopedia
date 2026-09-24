@@ -24,6 +24,15 @@ const sharePath = computed(() => {
   const path = teamPath(selectedTeam.value?.preview?.actions?.sharePath);
   return path === detailsPath.value ? path : null;
 });
+const capacityText = computed(() => {
+  const capacity = selectedTeam.value?.preview?.regularGameCapacity;
+  return Number.isSafeInteger(capacity) && capacity > 0 ? capacity.toLocaleString("en-US") : "Not available";
+});
+const openedYearText = computed(() => {
+  const year = selectedTeam.value?.preview?.openedYear;
+  return Number.isInteger(year) && year >= 1800 && year <= new Date().getFullYear()
+    ? String(year) : "Not available";
+});
 
 function selectTeam(team) {
   selectedTeam.value = team;
@@ -134,6 +143,10 @@ onUnmounted(() => map?.remove());
           <div class="preview-venue">
             <p>Home venue</p>
             <h4>{{ selectedTeam.venueName }}</h4>
+            <dl class="preview-facts">
+              <div><dt>Game capacity</dt><dd>{{ capacityText }}</dd></div>
+              <div><dt>Opened</dt><dd>{{ openedYearText }}</dd></div>
+            </dl>
           </div>
           <div class="preview-actions">
             <a v-if="officialURL" :href="officialURL" target="_blank" rel="noopener noreferrer">Official website</a>

@@ -28,15 +28,18 @@ func NewMemoryReader(documents ...MapDocument) Reader {
 					continue
 				}
 				teamPages[document.SnapshotID][strings.TrimPrefix(path, "/teams/")] = TeamPageDocument{
-					SnapshotID:         document.SnapshotID,
-					TeamID:             team.TeamID,
-					Name:               team.Name,
-					League:             team.League,
-					OfficialGroup:      team.OfficialGroup,
-					Division:           team.Division,
-					VenueName:          team.VenueName,
-					OfficialWebsiteURL: team.Preview.Actions.OfficialWebsiteURL,
-					Preview:            true,
+					SnapshotID:          document.SnapshotID,
+					TeamID:              team.TeamID,
+					Name:                team.Name,
+					League:              team.League,
+					OfficialGroup:       team.OfficialGroup,
+					Division:            team.Division,
+					VenueName:           team.VenueName,
+					RegularGameCapacity: team.Preview.RegularGameCapacity,
+					OpenedYear:          team.Preview.OpenedYear,
+					VenueFactsSourceURL: team.Preview.VenueFactsSourceURL,
+					OfficialWebsiteURL:  team.Preview.Actions.OfficialWebsiteURL,
+					Preview:             true,
 				}
 			}
 		}

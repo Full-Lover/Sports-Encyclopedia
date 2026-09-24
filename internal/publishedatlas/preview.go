@@ -16,8 +16,11 @@ func PreviewMapDocument() MapDocument {
 			Kind: PhotoPlaceholder,
 			Alt:  "TD Garden image unavailable",
 		},
-		VenueName: "TD Garden",
-		League:    LeagueNBA,
+		VenueName:           "TD Garden",
+		RegularGameCapacity: 19156,
+		OpenedYear:          1995,
+		VenueFactsSourceURL: "https://www.tdgarden.com/about-td-garden",
+		League:              LeagueNBA,
 		Actions: TeamPreviewActions{
 			OfficialWebsiteURL: "https://www.nba.com/celtics/",
 			SharePath:          "/teams/boston-celtics",

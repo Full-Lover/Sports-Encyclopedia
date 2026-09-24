@@ -221,6 +221,31 @@ h1 {
   font-size: 1.35rem;
 }
 
+.preview-facts {
+  display: flex;
+  justify-content: center;
+  gap: 0.5rem;
+  margin: 0.9rem 0 0;
+}
+
+.preview-facts div {
+  min-width: 6.5rem;
+  padding: 0.5rem;
+  border: 1px solid #cfdae4;
+  border-radius: 0.5rem;
+  background: #f5f8fb;
+}
+
+.preview-facts dt {
+  color: #536579;
+  font-size: 0.72rem;
+}
+
+.preview-facts dd {
+  margin: 0.15rem 0 0;
+  font-weight: 700;
+}
+
 .preview-actions {
   display: flex;
   flex-wrap: wrap;
@@ -462,6 +487,10 @@ h1 {
 
 .team-page-section p {
   color: #536579;
+}
+
+.team-page-section p + p {
+  margin-top: 0.4rem;
 }
 
 button {

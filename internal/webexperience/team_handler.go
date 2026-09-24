@@ -6,6 +6,8 @@ import (
 	"html/template"
 	"net/http"
 	"net/url"
+	"strconv"
+	"time"
 
 	"github.com/full-lover/sports-encyclopedia/internal/publishedatlas"
 )
@@ -13,6 +15,9 @@ import (
 type teamPageData struct {
 	Team         publishedatlas.TeamPageDocument
 	OfficialSite string
+	Capacity     string
+	OpenedYear   string
+	VenueSource  string
 }
 
 func registerTeamRoute(mux *http.ServeMux, reader publishedatlas.Reader) {
@@ -40,7 +45,17 @@ func registerTeamRoute(mux *http.ServeMux, reader publishedatlas.Reader) {
 			return
 		}
 		var rendered bytes.Buffer
-		data := teamPageData{Team: *result.Team, OfficialSite: secureOfficialSite(result.Team.OfficialWebsiteURL)}
+		data := teamPageData{
+			Team:         *result.Team,
+			OfficialSite: secureExternalURL(result.Team.OfficialWebsiteURL),
+			VenueSource:  secureExternalURL(result.Team.VenueFactsSourceURL),
+		}
+		if result.Team.RegularGameCapacity > 0 {
+			data.Capacity = formatCount(result.Team.RegularGameCapacity)
+		}
+		if year := result.Team.OpenedYear; year >= 1800 && year <= time.Now().Year() {
+			data.OpenedYear = strconv.Itoa(year)
+		}
 		if err := page.ExecuteTemplate(&rendered, "team.html", data); err != nil {
 			http.Error(response, "The page could not be rendered.", http.StatusInternalServerError)
 			return
@@ -64,10 +79,18 @@ func validTeamSlug(slug string) bool {
 	return true
 }
 
-func secureOfficialSite(raw string) string {
+func secureExternalURL(raw string) string {
 	parsed, err := url.Parse(raw)
 	if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil {
 		return ""
 	}
 	return parsed.String()
+}
+
+func formatCount(value int) string {
+	digits := strconv.Itoa(value)
+	for index := len(digits) - 3; index > 0; index -= 3 {
+		digits = digits[:index] + "," + digits[index:]
+	}
+	return digits
 }
