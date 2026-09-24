@@ -13,7 +13,7 @@
     <main class="team-page">
       <a class="back-link" href="/">Back to team map</a>
       <header class="team-page-header">
-        <p class="team-page-league">{{.Team.League}}</p>
+        <p class="team-page-league">{{.Team.League}}{{if .Team.OfficialGroup}} · {{.Team.OfficialGroup}}{{end}}{{if .Team.Division}} · {{.Team.Division}}{{end}}</p>
         <h1>{{.Team.Name}}</h1>
       </header>
       {{if .Team.Preview}}<p class="preview-note">Preview data — this team page is still being filled in.</p>{{end}}

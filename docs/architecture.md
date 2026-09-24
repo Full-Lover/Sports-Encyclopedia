@@ -442,6 +442,8 @@ interface MapDocument {
       teamId: TeamId;
       name: string;
       league: LeagueCode;
+      officialGroup?: string;
+      division?: string;
       venueName: string;
       visual: TeamVisual;
       preview: TeamPreviewView;

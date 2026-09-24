@@ -33,7 +33,7 @@ body {
   font-weight: 700;
 }
 
-h1, h2, h3, h4, p {
+h1, h2, h3, h4, h5, h6, p {
   margin: 0;
 }
 
@@ -336,10 +336,33 @@ h1 {
   font-size: 0.9rem;
 }
 
+.official-group {
+  margin-top: 1.2rem;
+}
+
+.official-group h5 {
+  font-size: 1.1rem;
+}
+
+.division {
+  margin-top: 0.75rem;
+  padding-left: 1rem;
+  border-left: 2px solid #cfdae4;
+}
+
+.division h6 {
+  color: #536579;
+  font-size: 0.9rem;
+}
+
 .team-list {
-  margin: 1.15rem 0 0;
+  margin: 0.6rem 0 0;
   padding: 0;
   list-style: none;
+}
+
+.team-row + .team-row {
+  margin-top: 0.6rem;
 }
 
 .team-row {
@@ -364,8 +387,7 @@ h1 {
   font-weight: 800;
 }
 
-.team-row h5 {
-  margin: 0;
+.team-name {
   font-size: 1.1rem;
 }
 

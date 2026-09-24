@@ -79,12 +79,14 @@ type TeamPreview struct {
 }
 
 type MapTeam struct {
-	TeamID    TeamID      `json:"teamId"`
-	Name      string      `json:"name"`
-	League    LeagueCode  `json:"league"`
-	VenueName string      `json:"venueName"`
-	Visual    TeamVisual  `json:"visual"`
-	Preview   TeamPreview `json:"preview"`
+	TeamID        TeamID      `json:"teamId"`
+	Name          string      `json:"name"`
+	League        LeagueCode  `json:"league"`
+	OfficialGroup string      `json:"officialGroup,omitempty"`
+	Division      string      `json:"division,omitempty"`
+	VenueName     string      `json:"venueName"`
+	Visual        TeamVisual  `json:"visual"`
+	Preview       TeamPreview `json:"preview"`
 }
 
 type MapPlace struct {
@@ -112,6 +114,8 @@ type TeamPageDocument struct {
 	TeamID             TeamID
 	Name               string
 	League             LeagueCode
+	OfficialGroup      string
+	Division           string
 	VenueName          string
 	OfficialWebsiteURL string
 	Preview            bool

@@ -32,6 +32,8 @@ func NewMemoryReader(documents ...MapDocument) Reader {
 					TeamID:             team.TeamID,
 					Name:               team.Name,
 					League:             team.League,
+					OfficialGroup:      team.OfficialGroup,
+					Division:           team.Division,
 					VenueName:          team.VenueName,
 					OfficialWebsiteURL: team.Preview.Actions.OfficialWebsiteURL,
 					Preview:            true,

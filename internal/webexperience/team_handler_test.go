@@ -18,7 +18,7 @@ func TestPreviewTeamPage(t *testing.T) {
 		t.Fatalf("status = %d, want %d", response.Code, http.StatusOK)
 	}
 	for _, expected := range []string{
-		"Boston Celtics", "TD Garden", `content="noindex"`,
+		"Boston Celtics", "TD Garden", "Eastern Conference", "Atlantic Division", `content="noindex"`,
 		`href="https://www.nba.com/celtics/"`, "Not available in this preview.",
 	} {
 		if !strings.Contains(response.Body.String(), expected) {

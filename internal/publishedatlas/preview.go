@@ -27,13 +27,16 @@ func PreviewMapDocument() MapDocument {
 	place := MapPlace{
 		VenueID:        "td-garden",
 		AccessibleName: "TD Garden, home of Boston Celtics",
+		// Team alignment: https://www.nba.com/news/faq
 		Teams: []MapTeam{{
-			TeamID:    preview.TeamID,
-			Name:      preview.TeamName,
-			League:    LeagueNBA,
-			VenueName: preview.VenueName,
-			Visual:    visual,
-			Preview:   preview,
+			TeamID:        preview.TeamID,
+			Name:          preview.TeamName,
+			League:        LeagueNBA,
+			OfficialGroup: "Eastern Conference",
+			Division:      "Atlantic Division",
+			VenueName:     preview.VenueName,
+			Visual:        visual,
+			Preview:       preview,
 		}},
 	}
 	place.Coordinates.Latitude = 42.366303

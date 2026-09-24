@@ -14,16 +14,34 @@ const viewMode = ref("map");
 
 const leagues = computed(() => {
   if (!document.value) return [];
-  return document.value.leagues.map((league) => ({
-    ...league,
-    teams: document.value.places.flatMap((place) =>
+  return document.value.leagues.map((league) => {
+    const teams = document.value.places.flatMap((place) =>
       place.teams.filter((team) => team.league === league.code).map((team) => ({
         ...team,
         officialSite: officialSite(team.preview?.actions?.officialWebsiteUrl),
         detailsPath: teamPath(team.preview?.actions?.detailsPath),
       })),
-    ),
-  }));
+    );
+    const groups = [];
+    for (const team of teams) {
+      const groupName = typeof team.officialGroup === "string" && team.officialGroup.trim()
+        ? team.officialGroup : "Alignment unavailable";
+      const divisionName = typeof team.division === "string" && team.division.trim()
+        ? team.division : "Division unavailable";
+      let group = groups.find((entry) => entry.name === groupName);
+      if (!group) {
+        group = { name: groupName, divisions: [] };
+        groups.push(group);
+      }
+      let division = group.divisions.find((entry) => entry.name === divisionName);
+      if (!division) {
+        division = { name: divisionName, teams: [] };
+        group.divisions.push(division);
+      }
+      division.teams.push(team);
+    }
+    return { ...league, teams, groups };
+  });
 });
 
 const visibleLeagues = computed(() => leagues.value.filter((league) => selectedLeagues.value.includes(league.code)));
@@ -114,17 +132,25 @@ onMounted(loadMap);
               <p>{{ league.name }}</p>
               <span class="team-count">{{ league.teams.length }} {{ league.teams.length === 1 ? 'team' : 'teams' }}</span>
             </div>
-            <ul v-if="league.teams.length" class="team-list">
-              <li v-for="team in league.teams" :key="team.teamId" class="team-row">
-                <span class="team-mark" aria-hidden="true">{{ team.visual.text }}</span>
-                <div>
-                  <h5>{{ team.name }}</h5>
-                  <p>{{ team.venueName }}</p>
+            <template v-if="league.teams.length">
+              <div v-for="group in league.groups" :key="group.name" class="official-group">
+                <h5>{{ group.name }}</h5>
+                <div v-for="division in group.divisions" :key="division.name" class="division">
+                  <h6>{{ division.name }}</h6>
+                  <ul class="team-list">
+                    <li v-for="team in division.teams" :key="team.teamId" class="team-row">
+                      <span class="team-mark" aria-hidden="true">{{ team.visual.text }}</span>
+                      <div>
+                        <strong class="team-name">{{ team.name }}</strong>
+                        <p>{{ team.venueName }}</p>
+                      </div>
+                      <a v-if="team.detailsPath" class="details-link" :href="team.detailsPath" :aria-label="`View ${team.name} details`">View details</a>
+                      <a v-if="team.officialSite" :href="team.officialSite" target="_blank" rel="noopener noreferrer" :aria-label="`${team.name} official website (opens in a new tab)`">Official site</a>
+                    </li>
+                  </ul>
                 </div>
-                <a v-if="team.detailsPath" class="details-link" :href="team.detailsPath">View details</a>
-                <a v-if="team.officialSite" :href="team.officialSite" target="_blank" rel="noopener noreferrer" :aria-label="`${team.name} official website (opens in a new tab)`">Official site</a>
-              </li>
-            </ul>
+              </div>
+            </template>
             <p v-else class="empty-league">Teams from this league are not available in the preview yet.</p>
           </section>
         </div>

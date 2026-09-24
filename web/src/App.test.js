@@ -21,6 +21,8 @@ const mapDocument = {
       teamId: "nba-boston-celtics",
       name: "Boston Celtics",
       league: "NBA",
+      officialGroup: "Eastern Conference",
+      division: "Atlantic Division",
       venueName: "TD Garden",
       visual: { text: "BOS" },
       preview: { actions: {
@@ -47,11 +49,38 @@ describe("App", () => {
     await wrapper.findAll(".view-switch button")[1].trigger("click");
     expect(wrapper.find("[data-test-map]").exists()).toBe(false);
     expect(wrapper.text()).toContain("Boston Celtics");
+    expect(wrapper.text()).toContain("Eastern Conference");
+    expect(wrapper.text()).toContain("Atlantic Division");
     expect(wrapper.text()).toContain("TD Garden");
     expect(wrapper.text()).toContain("Teams from this league are not available in the preview yet.");
     expect(wrapper.get('a[aria-label="Boston Celtics official website (opens in a new tab)"]').attributes("href"))
       .toBe("https://www.nba.com/celtics/");
     expect(wrapper.get(".details-link").attributes("href")).toBe("/teams/boston-celtics");
+    expect(wrapper.get(".details-link").attributes("aria-label")).toBe("View Boston Celtics details");
+  });
+
+  it("organizes teams by official group and division", async () => {
+    const grouped = structuredClone(mapDocument);
+    grouped.places.push({ teams: [
+      { teamId: "nba-chicago-bulls", name: "Chicago Bulls", league: "NBA",
+        officialGroup: "Eastern Conference", division: "Central Division",
+        venueName: "United Center", visual: { text: "CHI" } },
+      { teamId: "nba-los-angeles-lakers", name: "Los Angeles Lakers", league: "NBA",
+        officialGroup: "Western Conference", division: "Pacific Division",
+        venueName: "Crypto.com Arena", visual: { text: "LAL" } },
+    ] });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => grouped }));
+    const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
+    await flushPromises();
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
+
+    const nba = wrapper.findAll(".league-section")[0];
+    expect(nba.findAll(".official-group h5").map((heading) => heading.text()))
+      .toEqual(["Eastern Conference", "Western Conference"]);
+    expect(nba.findAll(".division h6").map((heading) => heading.text()))
+      .toEqual(["Atlantic Division", "Central Division", "Pacific Division"]);
+    expect(nba.findAll(".division .team-name").map((name) => name.text()))
+      .toEqual(["Boston Celtics", "Chicago Bulls", "Los Angeles Lakers"]);
   });
 
   it("offers a retry when the document cannot be loaded", async () => {
@@ -91,6 +120,8 @@ describe("App", () => {
     expect(wrapper.find("[data-test-map]").exists()).toBe(false);
     expect(wrapper.text()).not.toContain("TD Garden");
     expect(wrapper.text()).toContain("MetLife Stadium");
+    expect(wrapper.text()).toContain("Alignment unavailable");
+    expect(wrapper.text()).toContain("Division unavailable");
 
     expect(wrapper.findAll(".league-filter").map((button) => button.attributes("aria-pressed")))
       .toEqual(["false", "true"]);

@@ -43,6 +43,9 @@ func TestMapDocument(t *testing.T) {
 	if got := result.Places[0].Teams[0].Visual.Kind; got != publishedatlas.TeamVisualAbbreviation {
 		t.Fatalf("visual kind = %q", got)
 	}
+	if team := result.Places[0].Teams[0]; team.OfficialGroup != "Eastern Conference" || team.Division != "Atlantic Division" {
+		t.Fatalf("team alignment = %q / %q", team.OfficialGroup, team.Division)
+	}
 }
 
 func TestMapDocumentRejectsInvalidSnapshotID(t *testing.T) {
