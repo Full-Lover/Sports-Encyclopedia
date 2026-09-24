@@ -42,6 +42,7 @@ func run(args []string) error {
 			"web/dist",
 			publishedatlas.NewMemoryReader(
 				publishedatlas.PreviewMapDocument(),
+				publishedatlas.Preview0004MapDocument(),
 				publishedatlas.Preview0003MapDocument(),
 				publishedatlas.Preview0002MapDocument(),
 				publishedatlas.Preview0001MapDocument(),

@@ -1,13 +1,58 @@
 package publishedatlas
 
-const PreviewSnapshotID SnapshotID = "preview-0004"
+const PreviewSnapshotID SnapshotID = "preview-0005"
+const preview0004SnapshotID SnapshotID = "preview-0004"
 const preview0003SnapshotID SnapshotID = "preview-0003"
 const preview0002SnapshotID SnapshotID = "preview-0002"
 const preview0001SnapshotID SnapshotID = "preview-0001"
 
 func PreviewMapDocument() MapDocument {
-	document := Preview0003MapDocument()
+	document := Preview0004MapDocument()
 	document.SnapshotID = PreviewSnapshotID
+	place := &document.Places[1]
+	place.AccessibleName = "MetLife Stadium, home of New York Giants and New York Jets"
+
+	visual := TeamVisual{
+		Kind: TeamVisualAbbreviation,
+		Text: "NYJ",
+		Alt:  "New York Jets abbreviation",
+	}
+	preview := TeamPreview{
+		TeamID:     "nfl-new-york-jets",
+		TeamName:   "New York Jets",
+		TeamVisual: visual,
+		VenuePhoto: Photo{
+			Kind: PhotoPlaceholder,
+			Alt:  "MetLife Stadium image unavailable",
+		},
+		VenueName:           "MetLife Stadium",
+		RegularGameCapacity: 82500,
+		OpenedYear:          2010,
+		VenueFactsSourceURL: "https://www.metlifestadium.com/stadium/about-metlife-stadium",
+		League:              LeagueNFL,
+		Actions: TeamPreviewActions{
+			OfficialWebsiteURL: "https://www.newyorkjets.com/",
+			SharePath:          "/teams/new-york-jets",
+			DetailsPath:        "/teams/new-york-jets",
+		},
+	}
+	// Team alignment: https://www.nfl.com/teams/new-york-jets/
+	place.Teams = append(place.Teams, MapTeam{
+		TeamID:        preview.TeamID,
+		Name:          preview.TeamName,
+		League:        LeagueNFL,
+		OfficialGroup: "AFC",
+		Division:      "AFC East",
+		VenueName:     preview.VenueName,
+		Visual:        visual,
+		Preview:       preview,
+	})
+	return document
+}
+
+func Preview0004MapDocument() MapDocument {
+	document := Preview0003MapDocument()
+	document.SnapshotID = preview0004SnapshotID
 
 	visual := TeamVisual{
 		Kind: TeamVisualAbbreviation,

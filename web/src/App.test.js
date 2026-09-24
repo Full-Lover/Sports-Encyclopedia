@@ -161,6 +161,34 @@ describe("App", () => {
     wrapper.unmount();
   });
 
+  it("keeps both NFL teams at one venue when another league is hidden", async () => {
+    const shared = structuredClone(mapDocument);
+    shared.places.push({
+      accessibleName: "MetLife Stadium, home of New York Giants and New York Jets",
+      teams: [
+        { teamId: "nfl-new-york-giants", name: "New York Giants", league: "NFL",
+          officialGroup: "NFC", division: "NFC East", venueName: "MetLife Stadium",
+          visual: { text: "NYG" } },
+        { teamId: "nfl-new-york-jets", name: "New York Jets", league: "NFL",
+          officialGroup: "AFC", division: "AFC East", venueName: "MetLife Stadium",
+          visual: { text: "NYJ" } },
+      ],
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => shared }));
+    const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
+    await flushPromises();
+    await wrapper.findAll(".league-filter")[0].trigger("click");
+
+    expect(wrapper.get("[data-test-map]").text()).toBe("New York Giants, New York Jets");
+    expect(wrapper.get("[data-test-map]").attributes("data-place-names"))
+      .toBe("MetLife Stadium, home of New York Giants and New York Jets");
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
+    expect(wrapper.findAll(".league-section")).toHaveLength(1);
+    expect(wrapper.findAll(".official-group h5").map((heading) => heading.text())).toEqual(["NFC", "AFC"]);
+    expect(wrapper.findAll(".team-row")).toHaveLength(2);
+    wrapper.unmount();
+  });
+
   it("rejects data from a different snapshot", async () => {
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({
       ok: true,

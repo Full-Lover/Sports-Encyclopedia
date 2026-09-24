@@ -20,7 +20,7 @@ func (read readerFunc) Read(ctx context.Context, request publishedatlas.ReadRequ
 func TestMapDocument(t *testing.T) {
 	document := publishedatlas.PreviewMapDocument()
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(document))
-	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0004/map", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0005/map", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)
@@ -66,7 +66,8 @@ func TestMapDocument(t *testing.T) {
 		t.Fatalf("Bruins map team = %#v", bruins)
 	}
 	metLife := result.Places[1]
-	if metLife.VenueID != "metlife-stadium" || len(metLife.Teams) != 1 ||
+	if metLife.VenueID != "metlife-stadium" || len(metLife.Teams) != 2 ||
+		metLife.AccessibleName != "MetLife Stadium, home of New York Giants and New York Jets" ||
 		metLife.Coordinates.Latitude != 40.81352 || metLife.Coordinates.Longitude != -74.07435 {
 		t.Fatalf("MetLife place = %#v", metLife)
 	}
@@ -80,6 +81,18 @@ func TestMapDocument(t *testing.T) {
 		giants.Preview.Actions.SharePath != "/teams/new-york-giants" ||
 		giants.Preview.Actions.DetailsPath != "/teams/new-york-giants" {
 		t.Fatalf("Giants map team = %#v", giants)
+	}
+	jets := metLife.Teams[1]
+	if jets.TeamID != "nfl-new-york-jets" || jets.League != publishedatlas.LeagueNFL ||
+		jets.OfficialGroup != "AFC" || jets.Division != "AFC East" ||
+		jets.Visual.Kind != publishedatlas.TeamVisualAbbreviation || jets.Visual.Text != "NYJ" ||
+		jets.Preview.TeamID != jets.TeamID || jets.Preview.RegularGameCapacity != 82500 ||
+		jets.Preview.OpenedYear != 2010 ||
+		jets.Preview.VenueFactsSourceURL != "https://www.metlifestadium.com/stadium/about-metlife-stadium" ||
+		jets.Preview.Actions.OfficialWebsiteURL != "https://www.newyorkjets.com/" ||
+		jets.Preview.Actions.SharePath != "/teams/new-york-jets" ||
+		jets.Preview.Actions.DetailsPath != "/teams/new-york-jets" {
+		t.Fatalf("Jets map team = %#v", jets)
 	}
 	seattle := result.Places[2]
 	if seattle.VenueID != "t-mobile-park" || len(seattle.Teams) != 1 ||
@@ -103,13 +116,14 @@ func TestMapDocument(t *testing.T) {
 func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(
 		publishedatlas.PreviewMapDocument(),
+		publishedatlas.Preview0004MapDocument(),
 		publishedatlas.Preview0003MapDocument(),
 		publishedatlas.Preview0002MapDocument(),
 		publishedatlas.Preview0001MapDocument(),
 	))
 	home := httptest.NewRecorder()
 	handler.ServeHTTP(home, httptest.NewRequest(http.MethodGet, "/", nil))
-	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0004"`) {
+	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0005"`) {
 		t.Fatalf("active home page = %d %q", home.Code, home.Body.String())
 	}
 	for _, historical := range []struct {
@@ -120,6 +134,7 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 		{"preview-0001", 1, 1},
 		{"preview-0002", 1, 2},
 		{"preview-0003", 2, 2},
+		{"preview-0004", 3, 2},
 	} {
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/"+historical.id+"/map", nil))
@@ -134,6 +149,9 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 			len(result.Places) != historical.placeCount ||
 			len(result.Places[0].Teams) != historical.firstPlaceTeams || result.Places[0].Teams[0].Name != "Boston Celtics" {
 			t.Fatalf("%s: historical map document = %#v", historical.id, result)
+		}
+		if historical.id == "preview-0004" && len(result.Places[1].Teams) != 1 {
+			t.Fatalf("%s: MetLife historical teams = %#v", historical.id, result.Places[1].Teams)
 		}
 	}
 }
@@ -162,7 +180,7 @@ func TestMapDocumentRejectsAnEmptyReaderResult(t *testing.T) {
 	handler := New(t.TempDir(), readerFunc(func(context.Context, publishedatlas.ReadRequest) (publishedatlas.ReadResult, error) {
 		return publishedatlas.ReadResult{}, nil
 	}))
-	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0004/map", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0005/map", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)
