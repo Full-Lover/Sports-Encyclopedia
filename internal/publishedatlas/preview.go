@@ -1,12 +1,63 @@
 package publishedatlas
 
-const PreviewSnapshotID SnapshotID = "preview-0003"
+const PreviewSnapshotID SnapshotID = "preview-0004"
+const preview0003SnapshotID SnapshotID = "preview-0003"
 const preview0002SnapshotID SnapshotID = "preview-0002"
 const preview0001SnapshotID SnapshotID = "preview-0001"
 
 func PreviewMapDocument() MapDocument {
-	document := Preview0002MapDocument()
+	document := Preview0003MapDocument()
 	document.SnapshotID = PreviewSnapshotID
+
+	visual := TeamVisual{
+		Kind: TeamVisualAbbreviation,
+		Text: "SEA",
+		Alt:  "Seattle Mariners abbreviation",
+	}
+	preview := TeamPreview{
+		TeamID:     "mlb-seattle-mariners",
+		TeamName:   "Seattle Mariners",
+		TeamVisual: visual,
+		VenuePhoto: Photo{
+			Kind: PhotoPlaceholder,
+			Alt:  "T-Mobile Park image unavailable",
+		},
+		VenueName:           "T-Mobile Park",
+		RegularGameCapacity: 47943,
+		OpenedYear:          1999,
+		VenueFactsSourceURL: "https://www.mlb.com/mariners/history/ballparks",
+		League:              LeagueMLB,
+		Actions: TeamPreviewActions{
+			OfficialWebsiteURL: "https://www.mlb.com/mariners",
+			SharePath:          "/teams/seattle-mariners",
+			DetailsPath:        "/teams/seattle-mariners",
+		},
+	}
+	place := MapPlace{
+		VenueID:        "t-mobile-park",
+		AccessibleName: "T-Mobile Park, home of Seattle Mariners",
+		// Team alignment: https://www.mlb.com/mariners
+		Teams: []MapTeam{{
+			TeamID:        preview.TeamID,
+			Name:          preview.TeamName,
+			League:        LeagueMLB,
+			OfficialGroup: "American League",
+			Division:      "American League West",
+			VenueName:     preview.VenueName,
+			Visual:        visual,
+			Preview:       preview,
+		}},
+	}
+	// Venue coordinates: OpenStreetMap-derived Mapcarta T-Mobile Park location.
+	place.Coordinates.Latitude = 47.59093
+	place.Coordinates.Longitude = -122.33263
+	document.Places = append(document.Places, place)
+	return document
+}
+
+func Preview0003MapDocument() MapDocument {
+	document := Preview0002MapDocument()
+	document.SnapshotID = preview0003SnapshotID
 
 	visual := TeamVisual{
 		Kind: TeamVisualAbbreviation,
