@@ -1,11 +1,62 @@
 package publishedatlas
 
-const PreviewSnapshotID SnapshotID = "preview-0002"
+const PreviewSnapshotID SnapshotID = "preview-0003"
+const preview0002SnapshotID SnapshotID = "preview-0002"
 const preview0001SnapshotID SnapshotID = "preview-0001"
 
 func PreviewMapDocument() MapDocument {
-	document := Preview0001MapDocument()
+	document := Preview0002MapDocument()
 	document.SnapshotID = PreviewSnapshotID
+
+	visual := TeamVisual{
+		Kind: TeamVisualAbbreviation,
+		Text: "NYG",
+		Alt:  "New York Giants abbreviation",
+	}
+	preview := TeamPreview{
+		TeamID:     "nfl-new-york-giants",
+		TeamName:   "New York Giants",
+		TeamVisual: visual,
+		VenuePhoto: Photo{
+			Kind: PhotoPlaceholder,
+			Alt:  "MetLife Stadium image unavailable",
+		},
+		VenueName:           "MetLife Stadium",
+		RegularGameCapacity: 82500,
+		OpenedYear:          2010,
+		VenueFactsSourceURL: "https://www.metlifestadium.com/stadium/about-metlife-stadium",
+		League:              LeagueNFL,
+		Actions: TeamPreviewActions{
+			OfficialWebsiteURL: "https://www.giants.com/",
+			SharePath:          "/teams/new-york-giants",
+			DetailsPath:        "/teams/new-york-giants",
+		},
+	}
+	place := MapPlace{
+		VenueID:        "metlife-stadium",
+		AccessibleName: "MetLife Stadium, home of New York Giants",
+		// Team alignment and venue: https://www.nfl.com/teams/new-york-giants/
+		Teams: []MapTeam{{
+			TeamID:        preview.TeamID,
+			Name:          preview.TeamName,
+			League:        LeagueNFL,
+			OfficialGroup: "NFC",
+			Division:      "NFC East",
+			VenueName:     preview.VenueName,
+			Visual:        visual,
+			Preview:       preview,
+		}},
+	}
+	// Venue coordinates: OpenStreetMap way 24221553.
+	place.Coordinates.Latitude = 40.81352
+	place.Coordinates.Longitude = -74.07435
+	document.Places = append(document.Places, place)
+	return document
+}
+
+func Preview0002MapDocument() MapDocument {
+	document := Preview0001MapDocument()
+	document.SnapshotID = preview0002SnapshotID
 	place := &document.Places[0]
 	place.AccessibleName = "TD Garden, home of Boston Celtics and Boston Bruins"
 

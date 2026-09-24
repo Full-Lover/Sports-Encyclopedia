@@ -84,6 +84,37 @@ describe("TeamMap preview", () => {
     wrapper.unmount();
   });
 
+  it("opens the right preview when two venues have separate markers", async () => {
+    const giants = structuredClone(celtics);
+    giants.teamId = "nfl-new-york-giants";
+    giants.name = "New York Giants";
+    giants.venueName = "MetLife Stadium";
+    giants.visual.text = "NYG";
+    giants.preview.venuePhoto.alt = "MetLife Stadium image unavailable";
+    giants.preview.regularGameCapacity = 82500;
+    giants.preview.openedYear = 2010;
+    giants.preview.actions.officialWebsiteUrl = "https://www.giants.com/";
+    giants.preview.actions.sharePath = "/teams/new-york-giants";
+    giants.preview.actions.detailsPath = "/teams/new-york-giants";
+    const metLife = {
+      venueId: "metlife-stadium",
+      accessibleName: "MetLife Stadium, home of New York Giants",
+      coordinates: { latitude: 40.81352, longitude: -74.07435 },
+      teams: [giants],
+    };
+    const wrapper = mount(TeamMap, { props: { places: [place, metLife] } });
+    expect(wrapper.findAll(".leaflet-marker-icon")).toHaveLength(2);
+    await wrapper.findAll(".leaflet-marker-icon")[1].trigger("click");
+
+    expect(wrapper.find(".preview-chooser").exists()).toBe(false);
+    expect(wrapper.get(".preview-identity").text()).toContain("New York Giants");
+    expect(wrapper.get(".preview-venue").text()).toContain("MetLife Stadium");
+    expect(wrapper.get(".preview-facts").text()).toContain("82,500");
+    expect(wrapper.get('a[href="https://www.giants.com/"]').exists()).toBe(true);
+    expect(wrapper.get('a[href="/teams/new-york-giants"]').text()).toBe("View details");
+    wrapper.unmount();
+  });
+
   it("omits an unsafe official link and provides a manual share link when browser sharing is unavailable", async () => {
     const unsafe = structuredClone(celtics);
     unsafe.preview.actions.officialWebsiteUrl = "javascript:alert(1)";

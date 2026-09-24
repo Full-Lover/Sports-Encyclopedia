@@ -48,6 +48,25 @@ func TestPreviewBruinsTeamPage(t *testing.T) {
 	}
 }
 
+func TestPreviewGiantsTeamPage(t *testing.T) {
+	request := httptest.NewRequest(http.MethodGet, "/teams/new-york-giants", nil)
+	response := httptest.NewRecorder()
+	newTestHandler(t).ServeHTTP(response, request)
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusOK)
+	}
+	for _, expected := range []string{
+		"New York Giants", "MetLife Stadium", "NFC", "NFC East", `content="noindex"`,
+		`href="https://www.giants.com/"`, "Not available in this preview.",
+		"Regular-game capacity: 82,500", "Opened: 2010",
+		`href="https://www.metlifestadium.com/stadium/about-metlife-stadium"`,
+	} {
+		if !strings.Contains(response.Body.String(), expected) {
+			t.Errorf("page does not contain %q", expected)
+		}
+	}
+}
+
 func TestTeamPageRejectsUnknownAndInvalidSlugs(t *testing.T) {
 	handler := newTestHandler(t)
 	for _, path := range []string{"/teams/unknown-team", "/teams/not%20valid"} {
