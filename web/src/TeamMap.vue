@@ -156,7 +156,7 @@ onUnmounted(() => map?.remove());
           <p v-if="shareStatus" class="preview-share-status" role="status">{{ shareStatus }}</p>
         </template>
         <div v-else class="preview-chooser">
-          <h3>Choose a team at {{ selectedPlace.accessibleName }}</h3>
+          <h3>Choose a team at {{ selectedPlace.teams[0].venueName }}</h3>
           <button v-for="(team, index) in selectedPlace.teams" :key="team.teamId"
             :ref="(element) => captureFirstTeamButton(element, index)"
             type="button" @click="selectTeam(team)">{{ team.name }}</button>

@@ -40,7 +40,10 @@ func run(args []string) error {
 		Addr: address,
 		Handler: webexperience.New(
 			"web/dist",
-			publishedatlas.NewMemoryReader(publishedatlas.PreviewMapDocument()),
+			publishedatlas.NewMemoryReader(
+				publishedatlas.PreviewMapDocument(),
+				publishedatlas.Preview0001MapDocument(),
+			),
 		),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,

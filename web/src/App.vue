@@ -47,7 +47,10 @@ const leagues = computed(() => {
 const visibleLeagues = computed(() => leagues.value.filter((league) => selectedLeagues.value.includes(league.code)));
 const visiblePlaces = computed(() => (document.value?.places ?? []).flatMap((place) => {
   const teams = place.teams.filter((team) => selectedLeagues.value.includes(team.league));
-  return teams.length ? [{ ...place, teams }] : [];
+  if (!teams.length) return [];
+  const accessibleName = teams.length === place.teams.length ? place.accessibleName
+    : `${teams[0].venueName}, home of ${teams.map((team) => team.name).join(" and ")}`;
+  return [{ ...place, accessibleName, teams }];
 }));
 
 function toggleLeague(code) {

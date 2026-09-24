@@ -6,7 +6,7 @@ import App from "./App.vue";
 vi.mock("./TeamMap.vue", () => ({
   default: {
     props: ["places"],
-    template: '<div data-test-map>{{ places.flatMap((place) => place.teams.map((team) => team.name)).join(", ") }}</div>',
+    template: `<div data-test-map :data-place-names="places.map((place) => place.accessibleName).join(' | ')">{{ places.flatMap((place) => place.teams.map((team) => team.name)).join(', ') }}</div>`,
   },
 }));
 
@@ -132,6 +132,33 @@ describe("App", () => {
     expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
     expect(wrapper.get("[data-test-map]").text()).toContain("New York Giants");
     expect(fetch).toHaveBeenCalledTimes(1);
+  });
+
+  it("keeps shared-venue teams separate when filtering NBA and NHL", async () => {
+    const shared = structuredClone(mapDocument);
+    shared.leagues[1] = { code: "NHL", name: "National Hockey League" };
+    shared.places[0].accessibleName = "TD Garden, home of Boston Celtics and Boston Bruins";
+    shared.places[0].teams.push({
+      teamId: "nhl-boston-bruins", name: "Boston Bruins", league: "NHL",
+      officialGroup: "Eastern Conference", division: "Atlantic Division",
+      venueName: "TD Garden", visual: { text: "BOS" },
+      preview: { actions: { detailsPath: "/teams/boston-bruins" } },
+    });
+    vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, status: 200, json: async () => shared }));
+    const wrapper = mount(App, { props: { snapshotId: "preview-0001" } });
+    await flushPromises();
+
+    expect(wrapper.get("[data-test-map]").text()).toContain("Boston Celtics");
+    expect(wrapper.get("[data-test-map]").text()).toContain("Boston Bruins");
+    await wrapper.findAll(".league-filter")[0].trigger("click");
+    expect(wrapper.get("[data-test-map]").text()).toBe("Boston Bruins");
+    expect(wrapper.get("[data-test-map]").attributes("data-place-names"))
+      .toBe("TD Garden, home of Boston Bruins");
+    await wrapper.findAll(".view-switch button")[1].trigger("click");
+    expect(wrapper.findAll(".league-section")).toHaveLength(1);
+    expect(wrapper.get(".league-section h4").text()).toBe("NHL");
+    expect(wrapper.get(".details-link").attributes("href")).toBe("/teams/boston-bruins");
+    wrapper.unmount();
   });
 
   it("rejects data from a different snapshot", async () => {

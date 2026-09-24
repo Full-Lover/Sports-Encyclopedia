@@ -61,15 +61,26 @@ describe("TeamMap preview", () => {
   });
 
   it("asks which team to preview at a shared venue", async () => {
-    const bruins = { ...celtics, teamId: "nhl-boston-bruins", name: "Boston Bruins" };
+    const bruins = structuredClone(celtics);
+    bruins.teamId = "nhl-boston-bruins";
+    bruins.name = "Boston Bruins";
+    bruins.preview.regularGameCapacity = 17850;
+    bruins.preview.actions.officialWebsiteUrl = "https://www.nhl.com/bruins/";
+    bruins.preview.actions.sharePath = "/teams/boston-bruins";
+    bruins.preview.actions.detailsPath = "/teams/boston-bruins";
     const wrapper = mount(TeamMap, { props: { places: [{ ...place, teams: [celtics, bruins] }] } });
+    expect(wrapper.get(".leaflet-marker-icon").text()).toBe("2");
     await wrapper.get(".leaflet-marker-icon").trigger("click");
 
+    expect(wrapper.get(".preview-chooser h3").text()).toBe("Choose a team at TD Garden");
     expect(wrapper.get(".preview-chooser").text()).toContain("Boston Bruins");
     expect(wrapper.get(".team-preview").attributes("aria-label")).toBe("Choose a team at this venue");
     expect(wrapper.find(".preview-venue").exists()).toBe(false);
     await wrapper.findAll(".preview-chooser button")[1].trigger("click");
     expect(wrapper.get(".preview-identity").text()).toContain("Boston Bruins");
+    expect(wrapper.get(".preview-facts").text()).toContain("17,850");
+    expect(wrapper.get('a[href="https://www.nhl.com/bruins/"]').exists()).toBe(true);
+    expect(wrapper.get('a[href="/teams/boston-bruins"]').text()).toBe("View details");
     wrapper.unmount();
   });
 
