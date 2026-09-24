@@ -11,7 +11,7 @@ import (
 	"strings"
 )
 
-//go:embed preview-0005.json
+//go:embed preview-0006.json
 var currentPreviewData []byte
 
 // PreviewMapDocument loads the current embedded fixture; it does not synchronize external sources.

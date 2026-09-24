@@ -105,6 +105,23 @@ func TestPreviewMarinersTeamPage(t *testing.T) {
 	}
 }
 
+func TestPreviewRaptorsTeamPage(t *testing.T) {
+	response := httptest.NewRecorder()
+	newTestHandler(t).ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/teams/toronto-raptors", nil))
+	if response.Code != http.StatusOK {
+		t.Fatalf("status = %d, want %d", response.Code, http.StatusOK)
+	}
+	for _, expected := range []string{
+		"Toronto Raptors", "Scotiabank Arena", "Eastern Conference", "Atlantic Division", `content="noindex"`,
+		`href="https://www.nba.com/raptors"`, "Regular-game capacity: Not available", "Opened: 1999",
+		`href="https://www.scotiabankarena.com/about/"`,
+	} {
+		if !strings.Contains(response.Body.String(), expected) {
+			t.Errorf("page does not contain %q", expected)
+		}
+	}
+}
+
 func TestTeamPageRejectsUnknownAndInvalidSlugs(t *testing.T) {
 	handler := newTestHandler(t)
 	for _, path := range []string{"/teams/unknown-team", "/teams/not%20valid"} {

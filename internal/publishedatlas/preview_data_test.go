@@ -3,18 +3,39 @@ package publishedatlas
 import (
 	"bytes"
 	"encoding/json"
+	"os"
 	"reflect"
 	"strings"
 	"testing"
 )
 
-func TestEmbeddedPreviewMatchesPublishedSnapshot(t *testing.T) {
+func TestHistoricalPreviewJSONMatchesPublishedSnapshot(t *testing.T) {
+	data, err := os.ReadFile("preview-0005.json")
+	if err != nil {
+		t.Fatal(err)
+	}
+	loaded, err := decodePreviewMapDocument(bytes.NewReader(data))
+	if err != nil {
+		t.Fatalf("load historical preview: %v", err)
+	}
+	if want := Preview0005MapDocument(); !reflect.DeepEqual(loaded, want) {
+		t.Fatal("historical preview-0005 JSON differs from its published snapshot")
+	}
+}
+
+func TestEmbeddedPreviewPreservesHistoryAndAddsRaptors(t *testing.T) {
 	loaded, err := PreviewMapDocument()
 	if err != nil {
 		t.Fatalf("load embedded preview: %v", err)
 	}
-	if want := Preview0005MapDocument(); !reflect.DeepEqual(loaded, want) {
-		t.Fatalf("embedded preview differs from published preview-0005")
+	want := Preview0005MapDocument()
+	if loaded.SnapshotID != "preview-0006" || !reflect.DeepEqual(loaded.Leagues, want.Leagues) ||
+		len(loaded.Places) != len(want.Places)+1 || !reflect.DeepEqual(loaded.Places[:len(want.Places)], want.Places) {
+		t.Fatal("current preview does not preserve preview-0005 and add one venue")
+	}
+	place := loaded.Places[3]
+	if place.VenueID != "scotiabank-arena" || len(place.Teams) != 1 || place.Teams[0].TeamID != "nba-toronto-raptors" {
+		t.Fatalf("Toronto venue = %#v", place)
 	}
 }
 

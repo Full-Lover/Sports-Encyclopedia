@@ -20,7 +20,7 @@ func (read readerFunc) Read(ctx context.Context, request publishedatlas.ReadRequ
 func TestMapDocument(t *testing.T) {
 	document := previewDocument(t)
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(document))
-	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0005/map", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0006/map", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)
@@ -38,7 +38,7 @@ func TestMapDocument(t *testing.T) {
 	if result.SnapshotID != publishedatlas.PreviewSnapshotID {
 		t.Fatalf("snapshot id = %q", result.SnapshotID)
 	}
-	if len(result.Leagues) != 4 || len(result.Places) != 3 {
+	if len(result.Leagues) != 4 || len(result.Places) != 4 {
 		t.Fatalf("map document contains %d leagues and %d places", len(result.Leagues), len(result.Places))
 	}
 	if got := len(result.Places[0].Teams); got != 2 {
@@ -111,11 +111,26 @@ func TestMapDocument(t *testing.T) {
 		mariners.Preview.Actions.DetailsPath != "/teams/seattle-mariners" {
 		t.Fatalf("Mariners map team = %#v", mariners)
 	}
+	toronto := result.Places[3]
+	if toronto.VenueID != "scotiabank-arena" || len(toronto.Teams) != 1 ||
+		toronto.Coordinates.Latitude != 43.64343 || toronto.Coordinates.Longitude != -79.3791 {
+		t.Fatalf("Scotiabank Arena place = %#v", toronto)
+	}
+	raptors := toronto.Teams[0]
+	if raptors.TeamID != "nba-toronto-raptors" || raptors.League != publishedatlas.LeagueNBA ||
+		raptors.OfficialGroup != "Eastern Conference" || raptors.Division != "Atlantic Division" ||
+		raptors.Visual.Text != "TOR" || raptors.Preview.RegularGameCapacity != 0 ||
+		raptors.Preview.OpenedYear != 1999 ||
+		raptors.Preview.Actions.OfficialWebsiteURL != "https://www.nba.com/raptors" ||
+		raptors.Preview.Actions.DetailsPath != "/teams/toronto-raptors" {
+		t.Fatalf("Raptors map team = %#v", raptors)
+	}
 }
 
 func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(
 		previewDocument(t),
+		publishedatlas.Preview0005MapDocument(),
 		publishedatlas.Preview0004MapDocument(),
 		publishedatlas.Preview0003MapDocument(),
 		publishedatlas.Preview0002MapDocument(),
@@ -123,7 +138,7 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 	))
 	home := httptest.NewRecorder()
 	handler.ServeHTTP(home, httptest.NewRequest(http.MethodGet, "/", nil))
-	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0005"`) {
+	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0006"`) {
 		t.Fatalf("active home page = %d %q", home.Code, home.Body.String())
 	}
 	for _, historical := range []struct {
@@ -135,6 +150,7 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 		{"preview-0002", 1, 2},
 		{"preview-0003", 2, 2},
 		{"preview-0004", 3, 2},
+		{"preview-0005", 3, 2},
 	} {
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/"+historical.id+"/map", nil))
