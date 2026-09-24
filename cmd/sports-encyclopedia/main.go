@@ -35,13 +35,17 @@ func run(args []string) error {
 	if address == "" {
 		address = defaultAddress
 	}
+	preview, err := publishedatlas.PreviewMapDocument()
+	if err != nil {
+		return fmt.Errorf("load preview map: %w", err)
+	}
 
 	server := &http.Server{
 		Addr: address,
 		Handler: webexperience.New(
 			"web/dist",
 			publishedatlas.NewMemoryReader(
-				publishedatlas.PreviewMapDocument(),
+				preview,
 				publishedatlas.Preview0004MapDocument(),
 				publishedatlas.Preview0003MapDocument(),
 				publishedatlas.Preview0002MapDocument(),

@@ -82,7 +82,7 @@ func TestMemoryReaderRejectsHomeWithoutPublication(t *testing.T) {
 }
 
 func TestMemoryReaderReturnsPreviewTeamPage(t *testing.T) {
-	reader := NewMemoryReader(PreviewMapDocument())
+	reader := NewMemoryReader(previewDocument(t))
 	result, err := reader.Read(context.Background(), ReadRequest{Kind: ReadTeam, Slug: "boston-celtics"})
 	if err != nil {
 		t.Fatalf("read team: %v", err)
@@ -94,10 +94,19 @@ func TestMemoryReaderReturnsPreviewTeamPage(t *testing.T) {
 }
 
 func TestMemoryReaderRejectsUnknownTeam(t *testing.T) {
-	reader := NewMemoryReader(PreviewMapDocument())
+	reader := NewMemoryReader(previewDocument(t))
 	_, err := reader.Read(context.Background(), ReadRequest{Kind: ReadTeam, Slug: "unknown-team"})
 	var fault *ReadFault
 	if !errors.As(err, &fault) || fault.Code != FaultTeamMissing {
 		t.Fatalf("fault = %v, want %s", err, FaultTeamMissing)
 	}
+}
+
+func previewDocument(t *testing.T) MapDocument {
+	t.Helper()
+	document, err := PreviewMapDocument()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return document
 }

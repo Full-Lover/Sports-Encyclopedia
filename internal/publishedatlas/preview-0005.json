@@ -1,0 +1,157 @@
+{
+  "snapshotId": "preview-0005",
+  "leagues": [
+    {"code": "NBA", "name": "National Basketball Association", "path": "/leagues/nba"},
+    {"code": "NFL", "name": "National Football League", "path": "/leagues/nfl"},
+    {"code": "MLB", "name": "Major League Baseball", "path": "/leagues/mlb"},
+    {"code": "NHL", "name": "National Hockey League", "path": "/leagues/nhl"}
+  ],
+  "places": [
+    {
+      "venueId": "td-garden",
+      "coordinates": {"latitude": 42.366303, "longitude": -71.062228},
+      "accessibleName": "TD Garden, home of Boston Celtics and Boston Bruins",
+      "teams": [
+        {
+          "teamId": "nba-boston-celtics",
+          "name": "Boston Celtics",
+          "league": "NBA",
+          "officialGroup": "Eastern Conference",
+          "division": "Atlantic Division",
+          "venueName": "TD Garden",
+          "visual": {"kind": "ABBREVIATION", "text": "BOS", "alt": "Boston Celtics abbreviation"},
+          "preview": {
+            "teamId": "nba-boston-celtics",
+            "teamName": "Boston Celtics",
+            "teamVisual": {"kind": "ABBREVIATION", "text": "BOS", "alt": "Boston Celtics abbreviation"},
+            "venuePhoto": {"kind": "PLACEHOLDER", "alt": "TD Garden image unavailable"},
+            "venueName": "TD Garden",
+            "regularGameCapacity": 19156,
+            "openedYear": 1995,
+            "venueFactsSourceUrl": "https://www.tdgarden.com/about-td-garden",
+            "league": "NBA",
+            "actions": {
+              "officialWebsiteUrl": "https://www.nba.com/celtics/",
+              "sharePath": "/teams/boston-celtics",
+              "detailsPath": "/teams/boston-celtics"
+            }
+          }
+        },
+        {
+          "teamId": "nhl-boston-bruins",
+          "name": "Boston Bruins",
+          "league": "NHL",
+          "officialGroup": "Eastern Conference",
+          "division": "Atlantic Division",
+          "venueName": "TD Garden",
+          "visual": {"kind": "ABBREVIATION", "text": "BOS", "alt": "Boston Bruins abbreviation"},
+          "preview": {
+            "teamId": "nhl-boston-bruins",
+            "teamName": "Boston Bruins",
+            "teamVisual": {"kind": "ABBREVIATION", "text": "BOS", "alt": "Boston Bruins abbreviation"},
+            "venuePhoto": {"kind": "PLACEHOLDER", "alt": "TD Garden image unavailable"},
+            "venueName": "TD Garden",
+            "regularGameCapacity": 17850,
+            "openedYear": 1995,
+            "venueFactsSourceUrl": "https://www.tdgarden.com/about-td-garden",
+            "league": "NHL",
+            "actions": {
+              "officialWebsiteUrl": "https://www.nhl.com/bruins/",
+              "sharePath": "/teams/boston-bruins",
+              "detailsPath": "/teams/boston-bruins"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "venueId": "metlife-stadium",
+      "coordinates": {"latitude": 40.81352, "longitude": -74.07435},
+      "accessibleName": "MetLife Stadium, home of New York Giants and New York Jets",
+      "teams": [
+        {
+          "teamId": "nfl-new-york-giants",
+          "name": "New York Giants",
+          "league": "NFL",
+          "officialGroup": "NFC",
+          "division": "NFC East",
+          "venueName": "MetLife Stadium",
+          "visual": {"kind": "ABBREVIATION", "text": "NYG", "alt": "New York Giants abbreviation"},
+          "preview": {
+            "teamId": "nfl-new-york-giants",
+            "teamName": "New York Giants",
+            "teamVisual": {"kind": "ABBREVIATION", "text": "NYG", "alt": "New York Giants abbreviation"},
+            "venuePhoto": {"kind": "PLACEHOLDER", "alt": "MetLife Stadium image unavailable"},
+            "venueName": "MetLife Stadium",
+            "regularGameCapacity": 82500,
+            "openedYear": 2010,
+            "venueFactsSourceUrl": "https://www.metlifestadium.com/stadium/about-metlife-stadium",
+            "league": "NFL",
+            "actions": {
+              "officialWebsiteUrl": "https://www.giants.com/",
+              "sharePath": "/teams/new-york-giants",
+              "detailsPath": "/teams/new-york-giants"
+            }
+          }
+        },
+        {
+          "teamId": "nfl-new-york-jets",
+          "name": "New York Jets",
+          "league": "NFL",
+          "officialGroup": "AFC",
+          "division": "AFC East",
+          "venueName": "MetLife Stadium",
+          "visual": {"kind": "ABBREVIATION", "text": "NYJ", "alt": "New York Jets abbreviation"},
+          "preview": {
+            "teamId": "nfl-new-york-jets",
+            "teamName": "New York Jets",
+            "teamVisual": {"kind": "ABBREVIATION", "text": "NYJ", "alt": "New York Jets abbreviation"},
+            "venuePhoto": {"kind": "PLACEHOLDER", "alt": "MetLife Stadium image unavailable"},
+            "venueName": "MetLife Stadium",
+            "regularGameCapacity": 82500,
+            "openedYear": 2010,
+            "venueFactsSourceUrl": "https://www.metlifestadium.com/stadium/about-metlife-stadium",
+            "league": "NFL",
+            "actions": {
+              "officialWebsiteUrl": "https://www.newyorkjets.com/",
+              "sharePath": "/teams/new-york-jets",
+              "detailsPath": "/teams/new-york-jets"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "venueId": "t-mobile-park",
+      "coordinates": {"latitude": 47.59093, "longitude": -122.33263},
+      "accessibleName": "T-Mobile Park, home of Seattle Mariners",
+      "teams": [
+        {
+          "teamId": "mlb-seattle-mariners",
+          "name": "Seattle Mariners",
+          "league": "MLB",
+          "officialGroup": "American League",
+          "division": "American League West",
+          "venueName": "T-Mobile Park",
+          "visual": {"kind": "ABBREVIATION", "text": "SEA", "alt": "Seattle Mariners abbreviation"},
+          "preview": {
+            "teamId": "mlb-seattle-mariners",
+            "teamName": "Seattle Mariners",
+            "teamVisual": {"kind": "ABBREVIATION", "text": "SEA", "alt": "Seattle Mariners abbreviation"},
+            "venuePhoto": {"kind": "PLACEHOLDER", "alt": "T-Mobile Park image unavailable"},
+            "venueName": "T-Mobile Park",
+            "regularGameCapacity": 47943,
+            "openedYear": 1999,
+            "venueFactsSourceUrl": "https://www.mlb.com/mariners/history/ballparks",
+            "league": "MLB",
+            "actions": {
+              "officialWebsiteUrl": "https://www.mlb.com/mariners",
+              "sharePath": "/teams/seattle-mariners",
+              "detailsPath": "/teams/seattle-mariners"
+            }
+          }
+        }
+      ]
+    }
+  ]
+}

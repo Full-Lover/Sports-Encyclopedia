@@ -1,14 +1,16 @@
 package publishedatlas
 
-const PreviewSnapshotID SnapshotID = "preview-0005"
+const preview0005SnapshotID SnapshotID = "preview-0005"
+const PreviewSnapshotID SnapshotID = preview0005SnapshotID
 const preview0004SnapshotID SnapshotID = "preview-0004"
 const preview0003SnapshotID SnapshotID = "preview-0003"
 const preview0002SnapshotID SnapshotID = "preview-0002"
 const preview0001SnapshotID SnapshotID = "preview-0001"
 
-func PreviewMapDocument() MapDocument {
+// Preview0005MapDocument preserves the already published version as a historical fixture.
+func Preview0005MapDocument() MapDocument {
 	document := Preview0004MapDocument()
-	document.SnapshotID = PreviewSnapshotID
+	document.SnapshotID = preview0005SnapshotID
 	place := &document.Places[1]
 	place.AccessibleName = "MetLife Stadium, home of New York Giants and New York Jets"
 

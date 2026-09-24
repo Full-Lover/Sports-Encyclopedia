@@ -18,7 +18,7 @@ func (read readerFunc) Read(ctx context.Context, request publishedatlas.ReadRequ
 }
 
 func TestMapDocument(t *testing.T) {
-	document := publishedatlas.PreviewMapDocument()
+	document := previewDocument(t)
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(document))
 	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0005/map", nil)
 	response := httptest.NewRecorder()
@@ -115,7 +115,7 @@ func TestMapDocument(t *testing.T) {
 
 func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(
-		publishedatlas.PreviewMapDocument(),
+		previewDocument(t),
 		publishedatlas.Preview0004MapDocument(),
 		publishedatlas.Preview0003MapDocument(),
 		publishedatlas.Preview0002MapDocument(),

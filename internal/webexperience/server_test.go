@@ -12,7 +12,16 @@ import (
 
 func newTestHandler(t *testing.T) http.Handler {
 	t.Helper()
-	return New(t.TempDir(), publishedatlas.NewMemoryReader(publishedatlas.PreviewMapDocument()))
+	return New(t.TempDir(), publishedatlas.NewMemoryReader(previewDocument(t)))
+}
+
+func previewDocument(t *testing.T) publishedatlas.MapDocument {
+	t.Helper()
+	document, err := publishedatlas.PreviewMapDocument()
+	if err != nil {
+		t.Fatal(err)
+	}
+	return document
 }
 
 func TestHomePage(t *testing.T) {
