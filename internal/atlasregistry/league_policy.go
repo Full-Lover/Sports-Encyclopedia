@@ -13,12 +13,14 @@ type OfficialGroupEvidence struct {
 }
 
 type OfficialSeasonEvidence struct {
-	League            LeagueCode
-	Season            string
-	EffectiveAt       time.Time
-	RosterPublishedAt time.Time
-	SourceURL         string
-	Groups            []OfficialGroupEvidence
+	League                 LeagueCode
+	Season                 string
+	EffectiveAt            time.Time
+	RosterPublishedAt      time.Time
+	SourceURL              string
+	AuthoritySourceID      string
+	AuthorityCapabilityKey string
+	Groups                 []OfficialGroupEvidence
 }
 
 type LeagueSeason struct {

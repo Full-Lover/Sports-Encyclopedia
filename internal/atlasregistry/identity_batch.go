@@ -68,6 +68,7 @@ func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
 	}
 	if batch.SeasonEvidence != nil {
 		if err := ValidateOfficialSeasonEvidence(*batch.SeasonEvidence); err != nil ||
+			batch.SeasonEvidence.AuthoritySourceID != "" || batch.SeasonEvidence.AuthorityCapabilityKey != "" ||
 			batch.SeasonEvidence.League != batch.League || batch.SeasonEvidence.Season != batch.Season {
 			return ErrInvalidTeamIdentityBatch
 		}

@@ -24,6 +24,9 @@ type VenueFact struct {
 	TeamID              string
 	VenueID             string
 	OfficialName        string
+	City                string
+	Region              string
+	CountryCode         string
 	Latitude            float64
 	Longitude           float64
 	IsPrimary           bool
@@ -51,10 +54,13 @@ func ValidateVenueBatch(runID string, batch VenueBatch) error {
 	seen := make(map[[2]string]struct{}, len(batch.Venues))
 	for _, venue := range batch.Venues {
 		if !validToken(venue.TeamID, 64) || !validToken(venue.VenueID, 64) ||
-			!validText(venue.OfficialName, 160) || math.IsNaN(venue.Latitude) ||
+			!validText(venue.OfficialName, 160) || !validText(venue.City, 120) ||
+			!validText(venue.Region, 120) ||
+			(venue.CountryCode != "US" && venue.CountryCode != "CA") || math.IsNaN(venue.Latitude) ||
 			math.IsNaN(venue.Longitude) || math.IsInf(venue.Latitude, 0) ||
 			math.IsInf(venue.Longitude, 0) || venue.Latitude < -90 || venue.Latitude > 90 ||
 			venue.Longitude < -180 || venue.Longitude > 180 ||
+			(venue.Latitude == 0 && venue.Longitude == 0) ||
 			venue.RegularGameCapacity < 0 || venue.OpenedYear < 0 || venue.OpenedYear > 2100 {
 			return fmt.Errorf("%w: venue %q", ErrInvalidVenueBatch, venue.VenueID)
 		}

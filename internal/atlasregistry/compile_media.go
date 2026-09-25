@@ -46,6 +46,8 @@ func attachMedia(content *CompiledRegistryContent, media []stagedMedia) {
 }
 
 func selectedMedia(batch MediaAssetBatch, rights MediaRightsOption) *SelectedMedia {
-	return &SelectedMedia{AssetID: batch.AssetID, Kind: batch.Kind,
-		EntityID: batch.EntityID, FileURL: batch.FileURL, Rights: rights}
+	return &SelectedMedia{SourceID: batch.SourceID, CapabilityKey: batch.CapabilityKey,
+		AssetID: batch.AssetID, Kind: batch.Kind, EntityID: batch.EntityID,
+		FileURL: batch.FileURL, SourcePageURL: batch.SourcePageURL,
+		ContentHash: batch.ContentHash, FetchedAt: batch.FetchedAt, Rights: rights}
 }

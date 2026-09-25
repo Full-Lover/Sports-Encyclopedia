@@ -99,6 +99,19 @@ func compileRegistryContent(request CompileRequest, baseline CompiledRegistryCon
 		if team.Slug == "" {
 			return CompiledRegistryContent{}, ErrCompilationRejected
 		}
+		aliases := make(map[string]struct{}, len(prior.Aliases)+1)
+		for _, name := range prior.Aliases {
+			if name != identity.OfficialName {
+				aliases[name] = struct{}{}
+			}
+		}
+		if old := displayValue(prior.Identity); old != nil && old.OfficialName != identity.OfficialName {
+			aliases[old.OfficialName] = struct{}{}
+		}
+		for name := range aliases {
+			team.Aliases = append(team.Aliases, name)
+		}
+		sort.Strings(team.Aliases)
 		team.Venue, err = resolveGroup(inputs.venue[teamID], prior.Venue,
 			failedScope(request.FailedGroups, league, teamID, GroupVenue), request.RequestedAt)
 		if err != nil {
@@ -172,10 +185,15 @@ func mergeSeasonEvidence(previous []OfficialSeasonEvidence, facts []stagedFact) 
 			continue
 		}
 		item := *batch.SeasonEvidence
+		item.AuthoritySourceID = batch.SourceID
+		item.AuthorityCapabilityKey = batch.CapabilityKey
 		key := [2]string{string(item.League), item.Season}
 		if old, exists := byKey[key]; exists {
+			old.AuthoritySourceID, old.AuthorityCapabilityKey = "", ""
+			comparable := item
+			comparable.AuthoritySourceID, comparable.AuthorityCapabilityKey = "", ""
 			left, _ := json.Marshal(old)
-			right, _ := json.Marshal(item)
+			right, _ := json.Marshal(comparable)
 			if string(left) != string(right) {
 				return nil, ErrCompilationRejected
 			}
@@ -216,17 +234,21 @@ func teamSlug(name string) string {
 }
 
 func consistentVenueCoordinates(teams []CompiledTeam) bool {
-	venues := make(map[string][2]float64)
+	type location struct {
+		latitude, longitude   float64
+		city, region, country string
+	}
+	venues := make(map[string]location)
 	for _, team := range teams {
 		venue := displayValue(team.Venue)
 		if venue == nil {
 			continue
 		}
-		location := [2]float64{venue.Latitude, venue.Longitude}
-		if previous, exists := venues[venue.VenueID]; exists && previous != location {
+		current := location{venue.Latitude, venue.Longitude, venue.City, venue.Region, venue.CountryCode}
+		if previous, exists := venues[venue.VenueID]; exists && previous != current {
 			return false
 		}
-		venues[venue.VenueID] = location
+		venues[venue.VenueID] = current
 	}
 	return true
 }

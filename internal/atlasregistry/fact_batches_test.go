@@ -9,6 +9,7 @@ import (
 func TestValidateVenueBatch(t *testing.T) {
 	batch := VenueBatch{FactMetadata: validIdentityBatch().FactMetadata, Venues: []VenueFact{{
 		TeamID: "nba-boston-celtics", VenueID: "td-garden", OfficialName: "TD Garden",
+		City: "Boston", Region: "Massachusetts", CountryCode: "US",
 		Latitude: 42.366303, Longitude: -71.062228, IsPrimary: true,
 		RegularGameCapacity: 19156, OpenedYear: 1995,
 	}}}

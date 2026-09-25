@@ -54,11 +54,16 @@ type CompiledGroup[T any] struct {
 }
 
 type SelectedMedia struct {
-	AssetID  string
-	Kind     MediaKind
-	EntityID string
-	FileURL  string
-	Rights   MediaRightsOption
+	SourceID      string
+	CapabilityKey string
+	AssetID       string
+	Kind          MediaKind
+	EntityID      string
+	FileURL       string
+	SourcePageURL string
+	ContentHash   string
+	FetchedAt     time.Time
+	Rights        MediaRightsOption
 }
 
 type CompiledTeam struct {
@@ -68,6 +73,7 @@ type CompiledTeam struct {
 	Offseason    bool
 	Slug         string
 	SlugHistory  []string
+	Aliases      []string
 	Identity     CompiledGroup[TeamIdentityFact]
 	Venue        CompiledGroup[VenueFact]
 	Leader       CompiledGroup[LeaderFact]
@@ -106,6 +112,7 @@ type RegistryCompilation struct {
 	Profile           PublicationProfile
 	SchemaVersion     int
 	Content           CompiledRegistryContent
+	FailedGroups      []FailedGroup
 }
 
 // Registry is the only refresh-facing capability. Policy installation and

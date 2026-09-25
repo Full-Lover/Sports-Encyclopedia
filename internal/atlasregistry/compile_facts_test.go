@@ -24,6 +24,7 @@ func TestCompileRegistryPreviewAndFailureRetention(t *testing.T) {
 	policy.FactGroups = []DataGroupKind{GroupIdentity, GroupVenue, GroupLeader, GroupRoster}
 	venue := VenueBatch{FactMetadata: identity.FactMetadata, Venues: []VenueFact{{
 		TeamID: "nba-boston-celtics", VenueID: "td-garden", OfficialName: "TD Garden",
+		City: "Boston", Region: "Massachusetts", CountryCode: "US",
 		Latitude: 42.366303, Longitude: -71.062228, IsPrimary: true,
 		RegularGameCapacity: 19156,
 	}}}
@@ -83,5 +84,48 @@ func TestCompleteOfficialIdentityListControlsCurrentMembership(t *testing.T) {
 		map[LeagueCode]LeagueSeason{LeagueNBA: {League: LeagueNBA, Season: base.Season}})
 	if err != nil || len(ids) != 1 || ids[0] != "nba-boston-celtics" {
 		t.Fatalf("complete membership with partial older observation = %#v, %v", ids, err)
+	}
+}
+
+func TestCompileV1WithFourLeagueCoverage(t *testing.T) {
+	at := time.Date(2026, 1, 3, 0, 0, 0, 0, time.UTC)
+	var observations []stagedFact
+	for _, sample := range []struct {
+		league LeagueCode
+		group  string
+		other  string
+	}{
+		{LeagueNBA, "Eastern Conference", "Western Conference"},
+		{LeagueNFL, "AFC", "NFC"},
+		{LeagueMLB, "American League", "National League"},
+		{LeagueNHL, "Eastern Conference", "Western Conference"},
+	} {
+		identity := validIdentityBatch()
+		identity.League = sample.league
+		identity.SourceID = "official-" + string(sample.league)
+		identity.Teams[0].TeamID = "team-" + string(sample.league)
+		identity.Teams[0].OfficialName = "Example " + string(sample.league)
+		identity.Teams[0].OfficialGroup = sample.group
+		identity.Teams[0].Division = "Example Division"
+		identity.SeasonEvidence = &OfficialSeasonEvidence{League: sample.league,
+			Season: identity.Season, EffectiveAt: at.AddDate(-1, 0, 0),
+			RosterPublishedAt: at.AddDate(-1, 0, 1), SourceURL: "https://example.org/season",
+			Groups: []OfficialGroupEvidence{{Name: sample.group, Divisions: []string{"Example Division"}},
+				{Name: sample.other, Divisions: []string{"Other Division"}}}}
+		venue := VenueBatch{FactMetadata: identity.FactMetadata,
+			Venues: []VenueFact{{TeamID: identity.Teams[0].TeamID,
+				VenueID: "venue-" + string(sample.league), OfficialName: "Example Arena",
+				City: "Example City", Region: "Example State", CountryCode: "US",
+				Latitude: 40, Longitude: -75, IsPrimary: true}}}
+		policy := validFactPolicy()
+		policy.League = sample.league
+		policy.SourceID = identity.SourceID
+		policy.FactGroups = []DataGroupKind{GroupIdentity, GroupVenue}
+		observations = append(observations, stagedFact{identity, policy}, stagedFact{venue, policy})
+	}
+	compiled, err := compileRegistryContent(CompileRequest{RunID: "v1-four-leagues",
+		Profile: ProfileV1, RequestedAt: at}, CompiledRegistryContent{}, observations, nil)
+	if err != nil || len(compiled.Teams) != 4 {
+		t.Fatalf("four-league V1 content = %#v, %v", compiled, err)
 	}
 }
