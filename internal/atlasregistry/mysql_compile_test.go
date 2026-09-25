@@ -71,7 +71,7 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	}
 	if !validHash(first.NextBaselineToken) || len(first.Content.Teams) != 1 ||
 		first.Content.Teams[0].Venue.Value == nil || first.Content.Teams[0].Identity.Value == nil ||
-		first.Content.Teams[0].Logo == nil {
+		first.Content.Teams[0].Logo != nil {
 		t.Fatalf("compiled content = %#v", first)
 	}
 	replayed, err := registry.CompilePublicationContent(ctx, request)
@@ -81,6 +81,14 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	if _, err := registry.StageFacts(ctx, runID, venue); !errors.Is(err, ErrRunSealed) {
 		t.Fatalf("stage after compile = %v", err)
 	}
+	decision := MediaRightsDecision{SourceID: logo.SourceID, CapabilityKey: logo.CapabilityKey,
+		AssetID: logo.AssetID, ContentHash: logo.ContentHash, Kind: logo.Kind,
+		EntityID: logo.EntityID, FileURL: logo.FileURL, SourcePageURL: logo.SourcePageURL,
+		SelectedRights: logo.RightsOptions[0], ReviewedBy: "trusted-test-curator",
+		ReviewedAt: time.Now().UTC(), Active: true}
+	if err := registry.InstallMediaRightsDecision(ctx, decision); err != nil {
+		t.Fatal(err)
+	}
 	rebase := request
 	rebase.BaselineToken = first.NextBaselineToken
 	rebase.ConfigurationFingerprint = strings.Repeat("d", 64)
@@ -89,11 +97,22 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 		len(second.Content.Teams) != 1 || second.Content.Teams[0].Logo == nil {
 		t.Fatalf("rebase = %#v, %v", second, err)
 	}
+	decision.Active = false
+	decision.ReviewedAt = time.Now().UTC()
+	if err := registry.InstallMediaRightsDecision(ctx, decision); err != nil {
+		t.Fatal(err)
+	}
+	rebase.BaselineToken = second.NextBaselineToken
+	rebase.ConfigurationFingerprint = strings.Repeat("6", 64)
+	withoutDecision, err := registry.CompilePublicationContent(ctx, rebase)
+	if err != nil || withoutDecision.Content.Teams[0].Logo != nil {
+		t.Fatalf("revoked per-file rights = %#v, %v", withoutDecision.Content.Teams[0].Logo, err)
+	}
 	mediaPolicy.Active = false
 	if err := registry.InstallPolicy(ctx, mediaPolicy); err != nil {
 		t.Fatal(err)
 	}
-	rebase.BaselineToken = second.NextBaselineToken
+	rebase.BaselineToken = withoutDecision.NextBaselineToken
 	rebase.ConfigurationFingerprint = strings.Repeat("e", 64)
 	withoutLogo, err := registry.CompilePublicationContent(ctx, rebase)
 	if err != nil || withoutLogo.Content.Teams[0].Logo != nil {

@@ -15,8 +15,9 @@ type stagedFact struct {
 }
 
 type stagedMedia struct {
-	Batch  MediaAssetBatch
-	Policy UsagePolicy
+	Batch          MediaAssetBatch
+	Policy         UsagePolicy
+	ApprovedRights *MediaRightsOption
 }
 
 type groupedFacts struct {

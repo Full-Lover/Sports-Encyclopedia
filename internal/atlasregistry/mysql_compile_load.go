@@ -129,7 +129,11 @@ func loadStagedMedia(ctx context.Context, tx *sql.Tx, runID string) ([]stagedMed
 		if err != nil {
 			return nil, err
 		}
-		result = append(result, stagedMedia{Batch: batch, Policy: policy})
+		approved, err := loadApprovedMediaRights(ctx, tx, batch)
+		if err != nil {
+			return nil, err
+		}
+		result = append(result, stagedMedia{Batch: batch, Policy: policy, ApprovedRights: approved})
 	}
 	return result, nil
 }
@@ -169,7 +173,11 @@ func loadInheritedMedia(ctx context.Context, tx *sql.Tx, baseline CompiledRegist
 			return nil, err
 		}
 		if policy.AllowWebsite && policyAllowsMedia(policy, batch) {
-			result = append(result, stagedMedia{Batch: batch, Policy: policy})
+			approved, err := loadApprovedMediaRights(ctx, tx, batch)
+			if err != nil {
+				return nil, err
+			}
+			result = append(result, stagedMedia{Batch: batch, Policy: policy, ApprovedRights: approved})
 		}
 	}
 	return result, nil

@@ -11,10 +11,10 @@ func attachMedia(content *CompiledRegistryContent, media []stagedMedia) {
 	for _, observation := range media {
 		batch := observation.Batch
 		if !observation.Policy.AllowWebsite || !policyAllowsMedia(observation.Policy, batch) ||
-			len(batch.RightsOptions) == 0 {
+			observation.ApprovedRights == nil {
 			continue
 		}
-		option := batch.RightsOptions[0]
+		option := *observation.ApprovedRights
 		key := [2]string{string(batch.Kind), batch.EntityID}
 		old, exists := chosen[key]
 		if !exists || batch.FetchedAt.After(old.batch.FetchedAt) ||

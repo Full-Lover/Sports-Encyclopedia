@@ -14,7 +14,7 @@ func TestMediaRequiresRightsAndWebsitePolicy(t *testing.T) {
 		FetchedAt: time.Now().UTC()}
 	policy := UsagePolicy{SourceID: batch.SourceID, CapabilityKey: batch.CapabilityKey,
 		Kind: CapabilityMedia, MediaKinds: []MediaKind{MediaLogo}, Active: true, AllowWebsite: true}
-	attachMedia(&content, []stagedMedia{{batch, policy}})
+	attachMedia(&content, []stagedMedia{{Batch: batch, Policy: policy}})
 	if content.Teams[0].Logo != nil {
 		t.Fatal("unlicensed media became displayable")
 	}
@@ -22,12 +22,16 @@ func TestMediaRequiresRightsAndWebsitePolicy(t *testing.T) {
 		SourceURL: batch.SourcePageURL, PublicBasis: "documented public domain",
 		RetrievedAt: time.Now().UTC()}}
 	policy.AllowWebsite = false
-	attachMedia(&content, []stagedMedia{{batch, policy}})
+	attachMedia(&content, []stagedMedia{{Batch: batch, Policy: policy, ApprovedRights: &batch.RightsOptions[0]}})
 	if content.Teams[0].Logo != nil {
 		t.Fatal("policy-denied media became displayable")
 	}
 	policy.AllowWebsite = true
-	attachMedia(&content, []stagedMedia{{batch, policy}})
+	attachMedia(&content, []stagedMedia{{Batch: batch, Policy: policy}})
+	if content.Teams[0].Logo != nil {
+		t.Fatal("source rights claim without a review became displayable")
+	}
+	attachMedia(&content, []stagedMedia{{Batch: batch, Policy: policy, ApprovedRights: &batch.RightsOptions[0]}})
 	if content.Teams[0].Logo == nil || content.Teams[0].Logo.Rights.Kind != RightsPublicDomain {
 		t.Fatalf("licensed media was not selected: %#v", content.Teams[0].Logo)
 	}
