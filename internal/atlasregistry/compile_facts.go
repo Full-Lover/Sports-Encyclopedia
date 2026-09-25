@@ -154,6 +154,9 @@ func compileRegistryContent(request CompileRequest, baseline CompiledRegistryCon
 		return CompiledRegistryContent{}, ErrCompilationRejected
 	}
 	attachMedia(&result, media)
+	if err := validateCompiledContent(result); err != nil {
+		return CompiledRegistryContent{}, err
+	}
 	return result, nil
 }
 

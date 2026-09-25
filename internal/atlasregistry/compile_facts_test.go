@@ -53,6 +53,18 @@ func TestCompileRegistryPreviewAndFailureRetention(t *testing.T) {
 		team.Roster.Value == nil || team.Roster.Value.Entries[0].PersonID != "player-1" {
 		t.Fatalf("compiled team = %#v", team)
 	}
+	invalidVisual := content
+	invalidVisual.Teams = append([]CompiledTeam(nil), content.Teams...)
+	invalidVisual.Teams[0].Visual.Media = &SelectedMedia{}
+	if !errors.Is(validateCompiledContent(invalidVisual), ErrCompilationRejected) {
+		t.Fatal("abbreviation visual carried media")
+	}
+	invalidGroup := content
+	invalidGroup.Teams = append([]CompiledTeam(nil), content.Teams...)
+	invalidGroup.Teams[0].Venue.State = StateConflict
+	if !errors.Is(validateCompiledContent(invalidGroup), ErrCompilationRejected) {
+		t.Fatal("current venue payload was accepted as conflict")
+	}
 	partialRoster := roster
 	partialRoster.FetchedAt = roster.FetchedAt.Add(time.Hour)
 	partialRoster.Rosters = []TeamRosterFact{{TeamID: team.TeamID,
