@@ -21,6 +21,11 @@ DSN 使用 Go MySQL 驱动格式，例如 `用户名:密码@tcp(127.0.0.1:3306)/
 ```powershell
 $env:SPORTS_TEST_MYSQL_DSN = '<专用测试库的私有 DSN>'
 go test -count=1 -run TestMySQLPublicationLifecycle -v ./internal/publishedatlas
+go test -count=1 ./internal/atlasregistry
 ```
 
-发布过程先把候选写为不可见，再在同一个 InnoDB 事务中校验租约、发布门、当前基线和候选，记录收据并切换当前指针。事务失败时当前指针不变；过期租约先检查旧运行收据，再决定恢复还是让新运行接管。读侧只接受 `PUBLISHED` 快照。当前仍缺少自动刷新、Registry 编译和搜索文档，因此这套机制目前只承载预览地图与由其派生的球队页。
+发布过程先把候选写为不可见，再在同一个 InnoDB 事务中校验租约、发布门、当前基线和候选，记录收据并切换当前指针。事务失败时当前指针不变；过期租约先检查旧运行收据，再决定恢复还是让新运行接管。读侧只接受 `PUBLISHED` 快照。
+
+`AtlasRegistry` 现已提供事实/媒体暂存、运行封存与废弃、四联盟规则、来源核验、冲突与失败保留、基线编译、旧 slug 保护及逐文件媒体授权。它将来源批次和编译后的规范化内容作为不可变 JSON 聚合保存在 Registry 自有表中，并用独立的策略、授权决定和 slug 表维护需要跨基线约束的记录；这不是按每种领域实体各建一张表的物理映射。媒体仅有来源声明还不能展示：受信任的本地审核必须通过 `InstallMediaRightsDecision` 为精确文件修订选择权利依据，未知或撤销的决定默认回退为球队缩写/图片占位。
+
+当前 `publish-preview` 仍只发布内置样例，不调用 Registry。缺少的是下一 Module `AtlasRefresh` 的来源 Adapter、编排和 Registry→PublishedAtlas DTO 映射，以及正式页面/搜索文档；因此 Registry 的实现不会直接改变当前网页。
