@@ -71,7 +71,7 @@ func loadUsagePolicy(ctx context.Context, query policyQuerier, sourceID, capabil
 	err := query.QueryRowContext(ctx, `SELECT capability_kind, league, fact_groups, media_kinds,
 		official_authority, independence_key, allow_website, allow_repository,
 		allow_public_api, policy_source_url, reviewed_by, reviewed_at, active
-		FROM registry_source_capabilities WHERE source_id = ? AND capability_key = ?`,
+		FROM registry_source_capabilities WHERE source_id = ? AND capability_key = ? FOR UPDATE`,
 		sourceID, capabilityKey).Scan(&policy.Kind, &league, &groupsJSON, &kindsJSON,
 		&policy.OfficialAuthority, &policy.IndependenceKey, &policy.AllowWebsite,
 		&policy.AllowRepository, &policy.AllowPublicAPI, &policy.EvidenceURL,
