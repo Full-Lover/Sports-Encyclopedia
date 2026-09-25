@@ -14,7 +14,7 @@ npm --prefix web run build
 go run ./cmd/sports-encyclopedia web
 ```
 
-DSN 使用 Go MySQL 驱动格式，例如 `用户名:密码@tcp(127.0.0.1:3306)/数据库名`。程序强制使用 `parseTime=true` 和 UTC 解析数据库时间。迁移仅添加 `PublishedAtlas` 所拥有的表；`migrations/0001_publication.down.sql` 是人工审查用的回退文件，程序不会自动执行会删除发布数据的 down 迁移。
+DSN 使用 Go MySQL 驱动格式，例如 `用户名:密码@tcp(127.0.0.1:3306)/数据库名`。程序强制使用 `parseTime=true` 和 UTC 解析数据库时间。`migrate` 现在依次添加 `PublishedAtlas` 和 `AtlasRegistry` 各自拥有的表；两个 Module 的 `down.sql` 都只供人工审查，程序不会自动执行会删除数据的回退迁移。
 
 真实数据库集成测试只在设置 `SPORTS_TEST_MYSQL_DSN` 后运行，并且数据库名称必须含有 `test`；测试会写入快照和指针，请使用专用的可丢弃测试库：
 

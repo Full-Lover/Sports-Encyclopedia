@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/full-lover/sports-encyclopedia/internal/atlasregistry"
 	"github.com/full-lover/sports-encyclopedia/internal/publishedatlas"
 	"github.com/go-sql-driver/mysql"
 )
@@ -53,7 +54,10 @@ func runPublicationCommand(command string) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 	if command == "migrate" {
-		return publishedatlas.ApplyPublicationMigrations(ctx, db)
+		if err := publishedatlas.ApplyPublicationMigrations(ctx, db); err != nil {
+			return err
+		}
+		return atlasregistry.ApplyRegistryMigrations(ctx, db)
 	}
 	document, err := publishedatlas.PreviewMapDocument()
 	if err != nil {
