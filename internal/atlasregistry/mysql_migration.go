@@ -15,6 +15,9 @@ var registryMigration0001 string
 //go:embed migrations/0002_compilation.up.sql
 var registryMigration0002 string
 
+//go:embed migrations/0003_media_rights.up.sql
+var registryMigration0003 string
+
 // ApplyRegistryMigrations adds only AtlasRegistry-owned tables. MySQL DDL
 // commits implicitly; each statement can be retried before the ledger is set.
 func ApplyRegistryMigrations(ctx context.Context, db *sql.DB) error {
@@ -29,7 +32,7 @@ func ApplyRegistryMigrations(ctx context.Context, db *sql.DB) error {
 	for _, migration := range []struct {
 		version int
 		body    string
-	}{{1, registryMigration0001}, {2, registryMigration0002}} {
+	}{{1, registryMigration0001}, {2, registryMigration0002}, {3, registryMigration0003}} {
 		var version int
 		err := db.QueryRowContext(ctx, `SELECT version FROM registry_migrations WHERE version = ?`,
 			migration.version).Scan(&version)
