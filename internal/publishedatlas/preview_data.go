@@ -11,17 +11,29 @@ import (
 	"strings"
 )
 
-//go:embed preview-0006.json
+//go:embed preview-0007.json
 var currentPreviewData []byte
+
+//go:embed preview-0006.json
+var preview0006Data []byte
 
 // PreviewMapDocument loads the current embedded fixture; it does not synchronize external sources.
 func PreviewMapDocument() (MapDocument, error) {
-	document, err := decodePreviewMapDocument(bytes.NewReader(currentPreviewData))
+	return loadPreviewMapDocument(currentPreviewData, PreviewSnapshotID)
+}
+
+// Preview0006MapDocument loads the previously published, immutable snapshot.
+func Preview0006MapDocument() (MapDocument, error) {
+	return loadPreviewMapDocument(preview0006Data, preview0006SnapshotID)
+}
+
+func loadPreviewMapDocument(data []byte, expected SnapshotID) (MapDocument, error) {
+	document, err := decodePreviewMapDocument(bytes.NewReader(data))
 	if err != nil {
-		return MapDocument{}, fmt.Errorf("load current preview: %w", err)
+		return MapDocument{}, fmt.Errorf("load preview %q: %w", expected, err)
 	}
-	if document.SnapshotID != PreviewSnapshotID {
-		return MapDocument{}, fmt.Errorf("current preview has snapshot %q, want %q", document.SnapshotID, PreviewSnapshotID)
+	if document.SnapshotID != expected {
+		return MapDocument{}, fmt.Errorf("preview has snapshot %q, want %q", document.SnapshotID, expected)
 	}
 	return document, nil
 }

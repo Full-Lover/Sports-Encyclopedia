@@ -46,7 +46,7 @@ func TestHomePage(t *testing.T) {
 	for _, expected := range []string{
 		`<html lang="en">`,
 		`id="map-app"`,
-		`data-snapshot-id="preview-0006"`,
+		`data-snapshot-id="preview-0007"`,
 		`/assets/app.css`,
 		`/assets/app.js`,
 	} {

@@ -1,7 +1,8 @@
 package publishedatlas
 
 const preview0005SnapshotID SnapshotID = "preview-0005"
-const PreviewSnapshotID SnapshotID = "preview-0006"
+const preview0006SnapshotID SnapshotID = "preview-0006"
+const PreviewSnapshotID SnapshotID = "preview-0007"
 const preview0004SnapshotID SnapshotID = "preview-0004"
 const preview0003SnapshotID SnapshotID = "preview-0003"
 const preview0002SnapshotID SnapshotID = "preview-0002"

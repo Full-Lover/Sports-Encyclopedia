@@ -23,18 +23,24 @@ func TestHistoricalPreviewJSONMatchesPublishedSnapshot(t *testing.T) {
 	}
 }
 
-func TestEmbeddedPreviewPreservesHistoryAndAddsRaptors(t *testing.T) {
+func TestEmbeddedPreviewPreservesHistoryAndAddsMapleLeafs(t *testing.T) {
 	loaded, err := PreviewMapDocument()
 	if err != nil {
 		t.Fatalf("load embedded preview: %v", err)
 	}
-	want := Preview0005MapDocument()
-	if loaded.SnapshotID != "preview-0006" || !reflect.DeepEqual(loaded.Leagues, want.Leagues) ||
-		len(loaded.Places) != len(want.Places)+1 || !reflect.DeepEqual(loaded.Places[:len(want.Places)], want.Places) {
-		t.Fatal("current preview does not preserve preview-0005 and add one venue")
+	want, err := Preview0006MapDocument()
+	if err != nil {
+		t.Fatal(err)
+	}
+	if loaded.SnapshotID != "preview-0007" || !reflect.DeepEqual(loaded.Leagues, want.Leagues) ||
+		len(loaded.Places) != len(want.Places) || !reflect.DeepEqual(loaded.Places[:3], want.Places[:3]) {
+		t.Fatal("current preview does not preserve preview-0006 places")
 	}
 	place := loaded.Places[3]
-	if place.VenueID != "scotiabank-arena" || len(place.Teams) != 1 || place.Teams[0].TeamID != "nba-toronto-raptors" {
+	if place.VenueID != "scotiabank-arena" || len(place.Teams) != 2 ||
+		!reflect.DeepEqual(place.Coordinates, want.Places[3].Coordinates) ||
+		!reflect.DeepEqual(place.Teams[0], want.Places[3].Teams[0]) ||
+		place.Teams[1].TeamID != "nhl-toronto-maple-leafs" {
 		t.Fatalf("Toronto venue = %#v", place)
 	}
 }

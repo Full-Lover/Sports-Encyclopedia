@@ -20,7 +20,7 @@ func (read readerFunc) Read(ctx context.Context, request publishedatlas.ReadRequ
 func TestMapDocument(t *testing.T) {
 	document := previewDocument(t)
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(document))
-	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0006/map", nil)
+	request := httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0007/map", nil)
 	response := httptest.NewRecorder()
 
 	handler.ServeHTTP(response, request)
@@ -112,7 +112,8 @@ func TestMapDocument(t *testing.T) {
 		t.Fatalf("Mariners map team = %#v", mariners)
 	}
 	toronto := result.Places[3]
-	if toronto.VenueID != "scotiabank-arena" || len(toronto.Teams) != 1 ||
+	if toronto.VenueID != "scotiabank-arena" || len(toronto.Teams) != 2 ||
+		toronto.AccessibleName != "Scotiabank Arena, home of Toronto Raptors and Toronto Maple Leafs" ||
 		toronto.Coordinates.Latitude != 43.64343 || toronto.Coordinates.Longitude != -79.3791 {
 		t.Fatalf("Scotiabank Arena place = %#v", toronto)
 	}
@@ -125,11 +126,26 @@ func TestMapDocument(t *testing.T) {
 		raptors.Preview.Actions.DetailsPath != "/teams/toronto-raptors" {
 		t.Fatalf("Raptors map team = %#v", raptors)
 	}
+	leafs := toronto.Teams[1]
+	if leafs.TeamID != "nhl-toronto-maple-leafs" || leafs.League != publishedatlas.LeagueNHL ||
+		leafs.OfficialGroup != "Eastern Conference" || leafs.Division != "Atlantic Division" ||
+		leafs.Visual.Text != "TOR" || leafs.Preview.RegularGameCapacity != 0 ||
+		leafs.Preview.OpenedYear != 1999 ||
+		leafs.Preview.Actions.OfficialWebsiteURL != "https://www.nhl.com/mapleleafs/" ||
+		leafs.Preview.Actions.SharePath != "/teams/toronto-maple-leafs" ||
+		leafs.Preview.Actions.DetailsPath != "/teams/toronto-maple-leafs" {
+		t.Fatalf("Maple Leafs map team = %#v", leafs)
+	}
 }
 
 func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
+	previous, err := publishedatlas.Preview0006MapDocument()
+	if err != nil {
+		t.Fatal(err)
+	}
 	handler := New(t.TempDir(), publishedatlas.NewMemoryReader(
 		previewDocument(t),
+		previous,
 		publishedatlas.Preview0005MapDocument(),
 		publishedatlas.Preview0004MapDocument(),
 		publishedatlas.Preview0003MapDocument(),
@@ -138,7 +154,7 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 	))
 	home := httptest.NewRecorder()
 	handler.ServeHTTP(home, httptest.NewRequest(http.MethodGet, "/", nil))
-	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0006"`) {
+	if home.Code != http.StatusOK || !strings.Contains(home.Body.String(), `data-snapshot-id="preview-0007"`) {
 		t.Fatalf("active home page = %d %q", home.Code, home.Body.String())
 	}
 	for _, historical := range []struct {
@@ -151,6 +167,7 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 		{"preview-0003", 2, 2},
 		{"preview-0004", 3, 2},
 		{"preview-0005", 3, 2},
+		{"preview-0006", 4, 2},
 	} {
 		response := httptest.NewRecorder()
 		handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/"+historical.id+"/map", nil))
@@ -168,6 +185,9 @@ func TestHistoricalPreviewMapDocumentsRemainAvailable(t *testing.T) {
 		}
 		if historical.id == "preview-0004" && len(result.Places[1].Teams) != 1 {
 			t.Fatalf("%s: MetLife historical teams = %#v", historical.id, result.Places[1].Teams)
+		}
+		if historical.id == "preview-0006" && len(result.Places[3].Teams) != 1 {
+			t.Fatalf("%s: Toronto historical teams = %#v", historical.id, result.Places[3].Teams)
 		}
 	}
 }

@@ -39,6 +39,10 @@ func run(args []string) error {
 	if err != nil {
 		return fmt.Errorf("load preview map: %w", err)
 	}
+	previous, err := publishedatlas.Preview0006MapDocument()
+	if err != nil {
+		return fmt.Errorf("load previous preview map: %w", err)
+	}
 
 	server := &http.Server{
 		Addr: address,
@@ -46,6 +50,7 @@ func run(args []string) error {
 			"web/dist",
 			publishedatlas.NewMemoryReader(
 				preview,
+				previous,
 				publishedatlas.Preview0005MapDocument(),
 				publishedatlas.Preview0004MapDocument(),
 				publishedatlas.Preview0003MapDocument(),
