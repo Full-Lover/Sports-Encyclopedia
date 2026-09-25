@@ -53,7 +53,8 @@ type FactMetadata struct {
 // incomplete page set may be staged, but it must never imply deletion.
 type TeamIdentityBatch struct {
 	FactMetadata
-	Teams []TeamIdentityFact
+	SeasonEvidence *OfficialSeasonEvidence
+	Teams          []TeamIdentityFact
 }
 
 var ErrInvalidTeamIdentityBatch = errors.New("invalid team identity batch")
@@ -64,6 +65,12 @@ func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
 	if err := validateFactMetadata(runID, batch.FactMetadata); err != nil ||
 		len(batch.Teams) == 0 || len(batch.Teams) > 100 {
 		return ErrInvalidTeamIdentityBatch
+	}
+	if batch.SeasonEvidence != nil {
+		if err := ValidateOfficialSeasonEvidence(*batch.SeasonEvidence); err != nil ||
+			batch.SeasonEvidence.League != batch.League || batch.SeasonEvidence.Season != batch.Season {
+			return ErrInvalidTeamIdentityBatch
+		}
 	}
 	seen := make(map[string]struct{}, len(batch.Teams))
 	for _, team := range batch.Teams {
