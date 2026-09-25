@@ -41,6 +41,11 @@ func collectGroupedFacts(facts []stagedFact, selected map[LeagueCode]LeagueSeaso
 					factCandidate[LeaderFact]{Value: item, Policy: policy, Citation: citation})
 			}
 		case RosterBatch:
+			// A partial page does not describe the complete current roster. In
+			// particular, its absent players must not be interpreted as removals.
+			if !typed.CompletePagination {
+				continue
+			}
 			for _, item := range typed.Rosters {
 				copy := item
 				copy.Entries = append([]RosterEntryFact(nil), item.Entries...)

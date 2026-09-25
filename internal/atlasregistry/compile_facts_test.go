@@ -53,6 +53,24 @@ func TestCompileRegistryPreviewAndFailureRetention(t *testing.T) {
 		team.Roster.Value == nil || team.Roster.Value.Entries[0].PersonID != "player-1" {
 		t.Fatalf("compiled team = %#v", team)
 	}
+	partialRoster := roster
+	partialRoster.FetchedAt = roster.FetchedAt.Add(time.Hour)
+	partialRoster.Rosters = []TeamRosterFact{{TeamID: team.TeamID,
+		Entries: []RosterEntryFact{roster.Rosters[0].Entries[0]}}}
+	partialRoster.CompletePagination = false
+	partial, err := compileRegistryContent(request, content,
+		[]stagedFact{{partialRoster, policy}}, nil)
+	if err != nil || partial.Teams[0].Roster.Value == nil ||
+		len(partial.Teams[0].Roster.Value.Entries) != 2 {
+		t.Fatalf("incomplete roster removed a player: %#v, %v", partial, err)
+	}
+	partialRoster.CompletePagination = true
+	complete, err := compileRegistryContent(request, content,
+		[]stagedFact{{partialRoster, policy}}, nil)
+	if err != nil || complete.Teams[0].Roster.Value == nil ||
+		len(complete.Teams[0].Roster.Value.Entries) != 1 {
+		t.Fatalf("complete roster did not replace old membership: %#v, %v", complete, err)
+	}
 	if _, err := compileRegistryContent(CompileRequest{RunID: "run-v1", Profile: ProfileV1,
 		RequestedAt: at}, CompiledRegistryContent{}, facts, nil); !errors.Is(err, ErrCompilationRejected) {
 		t.Fatalf("incomplete four-league V1 coverage = %v", err)
