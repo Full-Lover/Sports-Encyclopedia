@@ -52,6 +52,7 @@ func ValidateVenueBatch(runID string, batch VenueBatch) error {
 		return ErrInvalidVenueBatch
 	}
 	seen := make(map[[2]string]struct{}, len(batch.Venues))
+	primary := make(map[string]struct{}, len(batch.Venues))
 	for _, venue := range batch.Venues {
 		if !validToken(venue.TeamID, 64) || !validToken(venue.VenueID, 64) ||
 			!validText(venue.OfficialName, 160) || !validText(venue.City, 120) ||
@@ -69,6 +70,12 @@ func ValidateVenueBatch(runID string, batch VenueBatch) error {
 			return fmt.Errorf("%w: duplicate team venue %q/%q", ErrInvalidVenueBatch, venue.TeamID, venue.VenueID)
 		}
 		seen[key] = struct{}{}
+		if venue.IsPrimary {
+			if _, duplicate := primary[venue.TeamID]; duplicate {
+				return fmt.Errorf("%w: multiple primary venues for team %q", ErrInvalidVenueBatch, venue.TeamID)
+			}
+			primary[venue.TeamID] = struct{}{}
+		}
 	}
 	return nil
 }

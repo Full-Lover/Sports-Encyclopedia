@@ -16,6 +16,13 @@ func TestValidateVenueBatch(t *testing.T) {
 	if err := ValidateVenueBatch("run-1", batch); err != nil {
 		t.Fatal(err)
 	}
+	second := batch.Venues[0]
+	second.VenueID = "other-garden"
+	batch.Venues = append(batch.Venues, second)
+	if err := ValidateVenueBatch("run-1", batch); !errors.Is(err, ErrInvalidVenueBatch) {
+		t.Fatalf("multiple primary venues = %v", err)
+	}
+	batch.Venues = batch.Venues[:1]
 	batch.Venues[0].Latitude = math.NaN()
 	if err := ValidateVenueBatch("run-1", batch); !errors.Is(err, ErrInvalidVenueBatch) {
 		t.Fatalf("NaN coordinate error = %v", err)
