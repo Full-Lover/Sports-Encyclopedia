@@ -88,6 +88,15 @@ type CompileRequest struct {
 	Profile                  PublicationProfile
 	ConfigurationFingerprint string
 	RequestedAt              time.Time
+	FailedGroups             []FailedGroup
+}
+
+type FailedGroup struct {
+	League        LeagueCode
+	TeamID        string
+	Group         DataGroupKind
+	FailedAt      time.Time
+	PossiblyStale bool
 }
 
 type RegistryCompilation struct {
