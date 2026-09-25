@@ -22,11 +22,12 @@ const (
 )
 
 type TeamIdentityFact struct {
-	TeamID             string
-	OfficialName       string
-	OfficialGroup      string
-	Division           string
-	OfficialWebsiteURL string
+	TeamID               string
+	OfficialName         string
+	OfficialAbbreviation string
+	OfficialGroup        string
+	Division             string
+	OfficialWebsiteURL   string
 }
 
 type DataGroupKind string
@@ -76,6 +77,7 @@ func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
 	seen := make(map[string]struct{}, len(batch.Teams))
 	for _, team := range batch.Teams {
 		if !validToken(team.TeamID, 64) || !validText(team.OfficialName, 160) ||
+			!validTeamAbbreviation(team.OfficialAbbreviation) ||
 			!validText(team.OfficialGroup, 80) ||
 			(team.Division != "" && !validText(team.Division, 80)) ||
 			!validHTTPSURL(team.OfficialWebsiteURL) {
@@ -87,6 +89,18 @@ func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
 		seen[team.TeamID] = struct{}{}
 	}
 	return nil
+}
+
+func validTeamAbbreviation(value string) bool {
+	if len(value) < 2 || len(value) > 5 {
+		return false
+	}
+	for _, character := range value {
+		if (character < 'A' || character > 'Z') && (character < '0' || character > '9') {
+			return false
+		}
+	}
+	return true
 }
 
 func validateFactMetadata(runID string, metadata FactMetadata) error {

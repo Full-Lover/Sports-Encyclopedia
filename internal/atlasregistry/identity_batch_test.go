@@ -16,7 +16,7 @@ func validIdentityBatch() TeamIdentityBatch {
 			ContentHash: strings.Repeat("a", 64), CompletePagination: true,
 		},
 		Teams: []TeamIdentityFact{{
-			TeamID: "nba-boston-celtics", OfficialName: "Boston Celtics",
+			TeamID: "nba-boston-celtics", OfficialName: "Boston Celtics", OfficialAbbreviation: "BOS",
 			OfficialGroup: "Eastern Conference", Division: "Atlantic Division",
 			OfficialWebsiteURL: "https://www.nba.com/celtics/",
 		}},
@@ -44,7 +44,8 @@ func TestValidateTeamIdentityBatch(t *testing.T) {
 		"duplicate team": func(batch *TeamIdentityBatch) {
 			batch.Teams = append(batch.Teams, batch.Teams[0])
 		},
-		"missing group": func(batch *TeamIdentityBatch) { batch.Teams[0].OfficialGroup = "" },
+		"missing group":    func(batch *TeamIdentityBatch) { batch.Teams[0].OfficialGroup = "" },
+		"bad abbreviation": func(batch *TeamIdentityBatch) { batch.Teams[0].OfficialAbbreviation = "b0s" },
 	}
 	for name, alter := range tests {
 		t.Run(name, func(t *testing.T) {

@@ -91,7 +91,7 @@ func TestCompleteOfficialIdentityListControlsCurrentMembership(t *testing.T) {
 	complete := base
 	partial := base
 	partial.CompletePagination = false
-	partial.Teams = []TeamIdentityFact{{TeamID: "nba-old-team", OfficialName: "Old Team"}}
+	partial.Teams = []TeamIdentityFact{{TeamID: "nba-old-team", OfficialName: "Old Team", OfficialAbbreviation: "OLD"}}
 	policy := validFactPolicy()
 	prior := map[string]CompiledTeam{
 		"nba-boston-celtics": {TeamID: "nba-boston-celtics", League: LeagueNBA, Season: base.Season},
