@@ -29,9 +29,16 @@ type TeamIdentityFact struct {
 	OfficialWebsiteURL string
 }
 
-// TeamIdentityBatch is one source/capability/league/season observation. An
-// incomplete page set may be staged, but it must never imply deletion.
-type TeamIdentityBatch struct {
+type DataGroupKind string
+
+const (
+	GroupIdentity DataGroupKind = "IDENTITY"
+	GroupVenue    DataGroupKind = "VENUE"
+	GroupLeader   DataGroupKind = "LEADER"
+	GroupRoster   DataGroupKind = "ROSTER"
+)
+
+type FactMetadata struct {
 	SourceID           string
 	CapabilityKey      string
 	League             LeagueCode
@@ -40,7 +47,13 @@ type TeamIdentityBatch struct {
 	FetchedAt          time.Time
 	ContentHash        string
 	CompletePagination bool
-	Teams              []TeamIdentityFact
+}
+
+// TeamIdentityBatch is one source/capability/league/season observation. An
+// incomplete page set may be staged, but it must never imply deletion.
+type TeamIdentityBatch struct {
+	FactMetadata
+	Teams []TeamIdentityFact
 }
 
 var ErrInvalidTeamIdentityBatch = errors.New("invalid team identity batch")
@@ -48,18 +61,8 @@ var ErrInvalidTeamIdentityBatch = errors.New("invalid team identity batch")
 // ValidateTeamIdentityBatch checks the boundary shape, not the truth or display
 // rights of the source. Registry source policy and evidence review come later.
 func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
-	if !validToken(runID, 128) || !validToken(batch.SourceID, 128) ||
-		!validToken(batch.CapabilityKey, 128) || !validText(batch.Season, 40) ||
-		batch.FetchedAt.IsZero() || !validHTTPSURL(batch.SourceURL) ||
+	if err := validateFactMetadata(runID, batch.FactMetadata); err != nil ||
 		len(batch.Teams) == 0 || len(batch.Teams) > 100 {
-		return ErrInvalidTeamIdentityBatch
-	}
-	switch batch.League {
-	case LeagueNBA, LeagueNFL, LeagueMLB, LeagueNHL:
-	default:
-		return ErrInvalidTeamIdentityBatch
-	}
-	if digest, err := hex.DecodeString(batch.ContentHash); err != nil || len(digest) != 32 {
 		return ErrInvalidTeamIdentityBatch
 	}
 	seen := make(map[string]struct{}, len(batch.Teams))
@@ -74,6 +77,23 @@ func ValidateTeamIdentityBatch(runID string, batch TeamIdentityBatch) error {
 			return fmt.Errorf("%w: duplicate team %q", ErrInvalidTeamIdentityBatch, team.TeamID)
 		}
 		seen[team.TeamID] = struct{}{}
+	}
+	return nil
+}
+
+func validateFactMetadata(runID string, metadata FactMetadata) error {
+	if !validToken(runID, 128) || !validToken(metadata.SourceID, 128) ||
+		!validToken(metadata.CapabilityKey, 128) || !validText(metadata.Season, 40) ||
+		metadata.FetchedAt.IsZero() || !validHTTPSURL(metadata.SourceURL) {
+		return ErrInvalidTeamIdentityBatch
+	}
+	switch metadata.League {
+	case LeagueNBA, LeagueNFL, LeagueMLB, LeagueNHL:
+	default:
+		return ErrInvalidTeamIdentityBatch
+	}
+	if digest, err := hex.DecodeString(metadata.ContentHash); err != nil || len(digest) != 32 {
+		return ErrInvalidTeamIdentityBatch
 	}
 	return nil
 }

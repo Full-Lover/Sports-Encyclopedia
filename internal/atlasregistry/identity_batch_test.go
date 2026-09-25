@@ -9,10 +9,12 @@ import (
 
 func validIdentityBatch() TeamIdentityBatch {
 	return TeamIdentityBatch{
-		SourceID: "nba-official", CapabilityKey: "teams.identity", League: LeagueNBA,
-		Season: "2025-26", SourceURL: "https://www.nba.com/teams",
-		FetchedAt:   time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC),
-		ContentHash: strings.Repeat("a", 64), CompletePagination: true,
+		FactMetadata: FactMetadata{
+			SourceID: "nba-official", CapabilityKey: "teams.identity", League: LeagueNBA,
+			Season: "2025-26", SourceURL: "https://www.nba.com/teams",
+			FetchedAt:   time.Date(2026, 1, 2, 3, 4, 5, 0, time.UTC),
+			ContentHash: strings.Repeat("a", 64), CompletePagination: true,
+		},
 		Teams: []TeamIdentityFact{{
 			TeamID: "nba-boston-celtics", OfficialName: "Boston Celtics",
 			OfficialGroup: "Eastern Conference", Division: "Atlantic Division",
