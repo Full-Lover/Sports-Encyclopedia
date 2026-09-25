@@ -51,7 +51,7 @@ func TestApplyRegistryMigrations(t *testing.T) {
 		WHERE table_schema = DATABASE() AND table_name LIKE 'registry_%'`).Scan(&count); err != nil {
 		t.Fatal(err)
 	}
-	if count < 5 {
-		t.Fatalf("registry tables = %d, want at least 5", count)
+	if count < 8 {
+		t.Fatalf("registry tables = %d, want at least 8", count)
 	}
 }
