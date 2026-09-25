@@ -2,6 +2,7 @@ package atlasregistry
 
 import (
 	"encoding/json"
+	"reflect"
 	"sort"
 	"time"
 )
@@ -15,8 +16,28 @@ type factCandidate[T any] struct {
 func resolveGroup[T any](candidates []factCandidate[T], previous CompiledGroup[T],
 	failed *FailedGroup, at time.Time) (CompiledGroup[T], error) {
 	latest := make(map[[2]string]factCandidate[T], len(candidates))
+	previousValue := displayValue(previous)
 	for _, candidate := range candidates {
 		key := [2]string{candidate.Citation.SourceID, candidate.Citation.CapabilityKey}
+		if previousValue != nil && (previous.State == StateCurrent || previous.State == StateRetainedAfterFailure) {
+			stale := false
+			for _, source := range previous.Sources {
+				if source.SourceID != key[0] || source.CapabilityKey != key[1] {
+					continue
+				}
+				if candidate.Citation.FetchedAt.Before(source.FetchedAt) {
+					stale = true
+					break
+				}
+				if candidate.Citation.FetchedAt.Equal(source.FetchedAt) &&
+					!reflect.DeepEqual(candidate.Value, *previousValue) {
+					return CompiledGroup[T]{}, ErrRevisionConflict
+				}
+			}
+			if stale {
+				continue
+			}
+		}
 		prior, found := latest[key]
 		if found && candidate.Citation.FetchedAt.Equal(prior.Citation.FetchedAt) {
 			left, leftErr := json.Marshal(prior.Value)
@@ -73,6 +94,24 @@ func resolveGroup[T any](candidates []factCandidate[T], previous CompiledGroup[T
 	if len(official) != 0 {
 		considered = official
 		rule = RuleOfficial
+	}
+	if previousValue != nil && (previous.State == StateCurrent || previous.State == StateRetainedAfterFailure) {
+		if previous.Verification != nil && previous.Verification.Rule == RuleOfficial && len(official) == 0 {
+			return previous, nil
+		}
+		priorSync := previous.SyncedAt
+		if priorSync.IsZero() {
+			priorSync = previous.LastSuccessfulSyncAt
+		}
+		newest := time.Time{}
+		for _, candidate := range considered {
+			if candidate.Citation.FetchedAt.After(newest) {
+				newest = candidate.Citation.FetchedAt
+			}
+		}
+		if newest.Before(priorSync) {
+			return previous, nil
+		}
 	}
 	firstValue, err := json.Marshal(considered[0].Value)
 	if err != nil {

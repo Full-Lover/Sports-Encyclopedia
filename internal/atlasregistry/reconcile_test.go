@@ -53,3 +53,37 @@ func TestResolveGroupOfficialTwoSourceConflictAndFailure(t *testing.T) {
 		t.Fatalf("same-source timestamp conflict = %v", err)
 	}
 }
+
+func TestResolveGroupDoesNotRegressToOlderOrNonOfficialObservation(t *testing.T) {
+	at := time.Date(2026, 9, 25, 0, 0, 0, 0, time.UTC)
+	old := TeamIdentityFact{TeamID: "team-1", OfficialName: "Old Name"}
+	current := TeamIdentityFact{TeamID: "team-1", OfficialName: "Current Name"}
+	prior := CompiledGroup[TeamIdentityFact]{State: StateCurrent, Value: &current,
+		SyncedAt: at, Verification: &Verification{VerifiedAt: at, Rule: RuleOfficial},
+		Sources: []SourceCitation{{SourceID: "official", CapabilityKey: "identity", FetchedAt: at}}}
+	candidate := factCandidate[TeamIdentityFact]{Value: old,
+		Policy:   UsagePolicy{OfficialAuthority: true, IndependenceKey: "league"},
+		Citation: SourceCitation{SourceID: "official", CapabilityKey: "identity", FetchedAt: at.Add(-time.Hour)}}
+	result, err := resolveGroup([]factCandidate[TeamIdentityFact]{candidate}, prior, nil, at.Add(time.Hour))
+	if err != nil || result.Value == nil || result.Value.OfficialName != current.OfficialName {
+		t.Fatalf("older official observation replaced baseline: %#v, %v", result, err)
+	}
+	candidate.Citation.FetchedAt = at
+	if _, err := resolveGroup([]factCandidate[TeamIdentityFact]{candidate}, prior, nil, at.Add(time.Hour)); !errors.Is(err, ErrRevisionConflict) {
+		t.Fatalf("same-source timestamp reused for different value = %v", err)
+	}
+	candidate.Policy.OfficialAuthority = false
+	candidate.Citation.SourceID = "community"
+	candidate.Citation.FetchedAt = at.Add(time.Hour)
+	result, err = resolveGroup([]factCandidate[TeamIdentityFact]{candidate}, prior, nil, at.Add(2*time.Hour))
+	if err != nil || result.Value == nil || result.Value.OfficialName != current.OfficialName ||
+		result.Verification == nil || result.Verification.Rule != RuleOfficial {
+		t.Fatalf("community observation displaced official baseline: %#v, %v", result, err)
+	}
+	candidate.Policy.OfficialAuthority = true
+	candidate.Citation.SourceID = "official"
+	result, err = resolveGroup([]factCandidate[TeamIdentityFact]{candidate}, prior, nil, at.Add(2*time.Hour))
+	if err != nil || result.Value == nil || result.Value.OfficialName != old.OfficialName {
+		t.Fatalf("newer official correction not accepted: %#v, %v", result, err)
+	}
+}
