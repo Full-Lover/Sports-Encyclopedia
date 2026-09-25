@@ -46,7 +46,7 @@ func filterBaselineFacts(ctx context.Context, tx *sql.Tx, baseline *CompiledRegi
 			return err
 		}
 		if !allowed {
-			team.Identity = CompiledGroup[TeamIdentityFact]{State: StateUnavailable}
+			team.Identity = CompiledGroup[TeamIdentityFact]{State: StateUnavailable, UnavailableReason: UnavailableMissing}
 		}
 		allowed, err = baselineGroupAllowed(ctx, tx, team.League, GroupVenue,
 			team.Venue.Sources, team.Venue.Verification)
@@ -54,7 +54,7 @@ func filterBaselineFacts(ctx context.Context, tx *sql.Tx, baseline *CompiledRegi
 			return err
 		}
 		if !allowed {
-			team.Venue = CompiledGroup[VenueFact]{State: StateUnavailable}
+			team.Venue = CompiledGroup[VenueFact]{State: StateUnavailable, UnavailableReason: UnavailableMissing}
 		}
 		allowed, err = baselineGroupAllowed(ctx, tx, team.League, GroupLeader,
 			team.Leader.Sources, team.Leader.Verification)
@@ -62,7 +62,7 @@ func filterBaselineFacts(ctx context.Context, tx *sql.Tx, baseline *CompiledRegi
 			return err
 		}
 		if !allowed {
-			team.Leader = CompiledGroup[LeaderFact]{State: StateUnavailable}
+			team.Leader = CompiledGroup[LeaderFact]{State: StateUnavailable, UnavailableReason: UnavailableMissing}
 		}
 		allowed, err = baselineGroupAllowed(ctx, tx, team.League, GroupRoster,
 			team.Roster.Sources, team.Roster.Verification)
@@ -70,7 +70,7 @@ func filterBaselineFacts(ctx context.Context, tx *sql.Tx, baseline *CompiledRegi
 			return err
 		}
 		if !allowed {
-			team.Roster = CompiledGroup[TeamRosterFact]{State: StateUnavailable}
+			team.Roster = CompiledGroup[TeamRosterFact]{State: StateUnavailable, UnavailableReason: UnavailableMissing}
 		}
 	}
 	return nil

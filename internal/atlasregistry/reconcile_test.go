@@ -28,7 +28,8 @@ func TestResolveGroupOfficialTwoSourceConflictAndFailure(t *testing.T) {
 	disagrees := makeCandidate("c", "org-c", false, TeamIdentityFact{TeamID: "team-1", OfficialName: "Other"})
 	conflict, err := resolveGroup([]factCandidate[TeamIdentityFact]{first, disagrees}, result, nil, at)
 	if err != nil || conflict.State != StateConflict || conflict.Verification != nil ||
-		conflict.LastVerifiedValue == nil || conflict.LastVerifiedValue.OfficialName != "Team One" {
+		conflict.LastVerifiedValue == nil || conflict.LastVerifiedValue.OfficialName != "Team One" ||
+		conflict.LastVerifiedAt.IsZero() {
 		t.Fatalf("conflict with old verified value = %#v, %v", conflict, err)
 	}
 	official := makeCandidate("official", "league", true, value)
@@ -44,13 +45,27 @@ func TestResolveGroupOfficialTwoSourceConflictAndFailure(t *testing.T) {
 		t.Fatalf("failed refresh retention = %#v, %v", retained, err)
 	}
 	retainedConflict, err := resolveGroup([]factCandidate[TeamIdentityFact]{}, conflict, &failed, failed.FailedAt)
-	if err != nil || retainedConflict.Value == nil || retainedConflict.Value.OfficialName != "Team One" {
-		t.Fatalf("failure after conflict lost last verified value = %#v, %v", retainedConflict, err)
+	if err != nil || retainedConflict.State != StateConflict || retainedConflict.LastVerifiedValue == nil ||
+		retainedConflict.LastVerifiedValue.OfficialName != "Team One" {
+		t.Fatalf("failure after conflict hid unresolved conflict = %#v, %v", retainedConflict, err)
 	}
 	duplicateTimestamp := makeCandidate("a", "org-a", false, disagrees.Value)
 	if _, err := resolveGroup([]factCandidate[TeamIdentityFact]{first, duplicateTimestamp},
 		CompiledGroup[TeamIdentityFact]{}, nil, at); !errors.Is(err, ErrRevisionConflict) {
 		t.Fatalf("same-source timestamp conflict = %v", err)
+	}
+}
+
+func TestUnavailableGroupCarriesReason(t *testing.T) {
+	at := time.Now().UTC()
+	fresh, err := resolveGroup([]factCandidate[LeaderFact]{}, CompiledGroup[LeaderFact]{}, nil, at)
+	if err != nil || fresh.State != StateUnavailable || fresh.UnavailableReason != UnavailableNeverSynced {
+		t.Fatalf("never synced = %#v, %v", fresh, err)
+	}
+	failed := FailedGroup{FailedAt: at}
+	missing, err := resolveGroup([]factCandidate[LeaderFact]{}, fresh, &failed, at)
+	if err != nil || missing.State != StateUnavailable || missing.UnavailableReason != UnavailableMissing {
+		t.Fatalf("missing after failed refresh = %#v, %v", missing, err)
 	}
 }
 

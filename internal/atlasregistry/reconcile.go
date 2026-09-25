@@ -63,8 +63,11 @@ func resolveGroup[T any](candidates []factCandidate[T], previous CompiledGroup[T
 	if len(chosen) == 0 {
 		if failed == nil {
 			if previous.State == "" {
-				return CompiledGroup[T]{State: StateUnavailable}, nil
+				return CompiledGroup[T]{State: StateUnavailable, UnavailableReason: UnavailableNeverSynced}, nil
 			}
+			return previous, nil
+		}
+		if previous.State == StateConflict {
 			return previous, nil
 		}
 		retainedValue := previous.Value
@@ -72,7 +75,11 @@ func resolveGroup[T any](candidates []factCandidate[T], previous CompiledGroup[T
 			retainedValue = previous.LastVerifiedValue
 		}
 		if retainedValue == nil {
-			return CompiledGroup[T]{State: StateUnavailable}, nil
+			reason := UnavailableMissing
+			if previous.State == "" {
+				reason = UnavailableNeverSynced
+			}
+			return CompiledGroup[T]{State: StateUnavailable, UnavailableReason: reason}, nil
 		}
 		lastSuccess := previous.SyncedAt
 		if lastSuccess.IsZero() {
@@ -141,9 +148,11 @@ func resolveGroup[T any](candidates []factCandidate[T], previous CompiledGroup[T
 		result := CompiledGroup[T]{State: StateConflict, ConflictDetectedAt: at, Sources: sources}
 		if previous.Verification != nil {
 			result.LastVerifiedValue = previous.Value
+			result.LastVerifiedAt = previous.Verification.VerifiedAt
 		}
 		if result.LastVerifiedValue == nil {
 			result.LastVerifiedValue = previous.LastVerifiedValue
+			result.LastVerifiedAt = previous.LastVerifiedAt
 		}
 		return result, nil
 	}

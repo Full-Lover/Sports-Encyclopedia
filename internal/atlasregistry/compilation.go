@@ -21,6 +21,13 @@ const (
 	StateUnavailable          DataGroupState = "UNAVAILABLE"
 )
 
+type UnavailableReason string
+
+const (
+	UnavailableNeverSynced UnavailableReason = "NEVER_SYNCED"
+	UnavailableMissing     UnavailableReason = "MISSING"
+)
+
 type VerificationRule string
 
 const (
@@ -44,6 +51,7 @@ type CompiledGroup[T any] struct {
 	State                DataGroupState
 	Value                *T
 	LastVerifiedValue    *T
+	LastVerifiedAt       time.Time
 	SyncedAt             time.Time
 	LastSuccessfulSyncAt time.Time
 	FailedAt             time.Time
@@ -51,6 +59,7 @@ type CompiledGroup[T any] struct {
 	ConflictDetectedAt   time.Time
 	Verification         *Verification
 	Sources              []SourceCitation
+	UnavailableReason    UnavailableReason
 }
 
 type SelectedMedia struct {
