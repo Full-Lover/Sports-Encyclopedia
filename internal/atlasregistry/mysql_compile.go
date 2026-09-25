@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"sort"
+	"time"
 )
 
 var (
@@ -42,16 +43,18 @@ func (registry *MySQLRegistry) CompilePublicationContent(ctx context.Context, re
 		return RegistryCompilation{}, ErrRunSealed
 	}
 	var stored []byte
-	err = tx.QueryRowContext(ctx, `SELECT compilation FROM registry_compilations
+	var storedRequestedAt time.Time
+	err = tx.QueryRowContext(ctx, `SELECT compilation, requested_at FROM registry_compilations
 		WHERE run_id = ? AND baseline_token = ? AND profile = ? AND configuration_fingerprint = ?
 		FOR UPDATE`, request.RunID, request.BaselineToken, request.Profile,
-		request.ConfigurationFingerprint).Scan(&stored)
+		request.ConfigurationFingerprint).Scan(&stored, &storedRequestedAt)
 	if err == nil {
 		var existing RegistryCompilation
 		if err := json.Unmarshal(stored, &existing); err != nil {
 			return RegistryCompilation{}, fmt.Errorf("decode existing registry compilation: %w", err)
 		}
-		if !sameFailedGroups(existing.FailedGroups, request.FailedGroups) {
+		if !sameFailedGroups(existing.FailedGroups, request.FailedGroups) ||
+			!storedRequestedAt.UTC().Equal(request.RequestedAt.UTC().Truncate(time.Microsecond)) {
 			return RegistryCompilation{}, ErrRevisionConflict
 		}
 		return existing, nil

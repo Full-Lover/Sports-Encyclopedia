@@ -79,6 +79,11 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	if err != nil || replayed.NextBaselineToken != first.NextBaselineToken {
 		t.Fatalf("replay = %#v, %v", replayed, err)
 	}
+	changedRequest := request
+	changedRequest.RequestedAt = changedRequest.RequestedAt.Add(time.Second)
+	if _, err := registry.CompilePublicationContent(ctx, changedRequest); !errors.Is(err, ErrRevisionConflict) {
+		t.Fatalf("same key with changed requestedAt = %v", err)
+	}
 	if _, err := registry.StageFacts(ctx, runID, venue); !errors.Is(err, ErrRunSealed) {
 		t.Fatalf("stage after compile = %v", err)
 	}
