@@ -102,7 +102,7 @@ func (registry *MySQLRegistry) CompilePublicationContent(ctx context.Context, re
 		return RegistryCompilation{}, err
 	}
 	compilation := RegistryCompilation{RunID: request.RunID, BaselineTokenUsed: request.BaselineToken,
-		NextBaselineToken: token, Profile: request.Profile, SchemaVersion: 1,
+		NextBaselineToken: token, Profile: request.Profile, SchemaVersion: 2,
 		Content: content, FailedGroups: canonicalFailedGroups(request.FailedGroups)}
 	contentJSON, err := json.Marshal(content)
 	if err != nil {

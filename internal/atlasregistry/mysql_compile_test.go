@@ -69,9 +69,10 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if !validHash(first.NextBaselineToken) || len(first.Content.Teams) != 1 ||
+	if first.SchemaVersion != 2 || !validHash(first.NextBaselineToken) || len(first.Content.Teams) != 1 ||
 		first.Content.Teams[0].Venue.Value == nil || first.Content.Teams[0].Identity.Value == nil ||
-		first.Content.Teams[0].Logo != nil {
+		first.Content.Teams[0].Visual.Kind != TeamVisualAbbreviation ||
+		first.Content.Teams[0].Visual.Abbreviation != "BOS" {
 		t.Fatalf("compiled content = %#v", first)
 	}
 	replayed, err := registry.CompilePublicationContent(ctx, request)
@@ -94,7 +95,7 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	rebase.ConfigurationFingerprint = strings.Repeat("d", 64)
 	second, err := registry.CompilePublicationContent(ctx, rebase)
 	if err != nil || second.NextBaselineToken == first.NextBaselineToken ||
-		len(second.Content.Teams) != 1 || second.Content.Teams[0].Logo == nil {
+		len(second.Content.Teams) != 1 || second.Content.Teams[0].Visual.Kind != TeamVisualMedia {
 		t.Fatalf("rebase = %#v, %v", second, err)
 	}
 	decision.Active = false
@@ -105,8 +106,8 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	rebase.BaselineToken = second.NextBaselineToken
 	rebase.ConfigurationFingerprint = strings.Repeat("6", 64)
 	withoutDecision, err := registry.CompilePublicationContent(ctx, rebase)
-	if err != nil || withoutDecision.Content.Teams[0].Logo != nil {
-		t.Fatalf("revoked per-file rights = %#v, %v", withoutDecision.Content.Teams[0].Logo, err)
+	if err != nil || withoutDecision.Content.Teams[0].Visual.Kind != TeamVisualAbbreviation {
+		t.Fatalf("revoked per-file rights = %#v, %v", withoutDecision.Content.Teams[0].Visual, err)
 	}
 	mediaPolicy.Active = false
 	if err := registry.InstallPolicy(ctx, mediaPolicy); err != nil {
@@ -115,8 +116,8 @@ func TestMySQLRegistryCompileLifecycle(t *testing.T) {
 	rebase.BaselineToken = withoutDecision.NextBaselineToken
 	rebase.ConfigurationFingerprint = strings.Repeat("e", 64)
 	withoutLogo, err := registry.CompilePublicationContent(ctx, rebase)
-	if err != nil || withoutLogo.Content.Teams[0].Logo != nil {
-		t.Fatalf("revoked media policy = %#v, %v", withoutLogo.Content.Teams[0].Logo, err)
+	if err != nil || withoutLogo.Content.Teams[0].Visual.Kind != TeamVisualAbbreviation {
+		t.Fatalf("revoked media policy = %#v, %v", withoutLogo.Content.Teams[0].Visual, err)
 	}
 	renameRun := fmt.Sprintf("rename-run-%d", unique)
 	renamed := identity

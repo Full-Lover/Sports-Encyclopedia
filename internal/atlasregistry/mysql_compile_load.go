@@ -142,13 +142,17 @@ func loadInheritedMedia(ctx context.Context, tx *sql.Tx, baseline CompiledRegist
 	seen := make(map[[2]string]struct{})
 	var assets []SelectedMedia
 	for _, team := range baseline.Teams {
-		if team.Logo != nil {
-			assets = append(assets, *team.Logo)
+		if team.Visual.Media != nil {
+			assets = append(assets, *team.Visual.Media)
 		}
-		if team.VenuePhoto != nil {
-			assets = append(assets, *team.VenuePhoto)
+		if team.VenuePhoto.Media != nil {
+			assets = append(assets, *team.VenuePhoto.Media)
 		}
-		assets = append(assets, team.PlayerPhotos...)
+		for _, photo := range team.PlayerPhotos {
+			if photo.Photo.Media != nil {
+				assets = append(assets, *photo.Photo.Media)
+			}
+		}
 	}
 	var result []stagedMedia
 	for _, asset := range assets {

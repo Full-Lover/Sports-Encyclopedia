@@ -24,22 +24,32 @@ func attachMedia(content *CompiledRegistryContent, media []stagedMedia) {
 	}
 	for i := range content.Teams {
 		team := &content.Teams[i]
-		if logo, found := chosen[[2]string{string(MediaLogo), team.TeamID}]; found {
-			team.Logo = selectedMedia(logo.batch, logo.rights)
+		identity := displayValue(team.Identity)
+		team.Visual = TeamVisual{Kind: TeamVisualAbbreviation}
+		if identity != nil {
+			team.Visual.Abbreviation = identity.OfficialAbbreviation
 		}
+		if logo, found := chosen[[2]string{string(MediaLogo), team.TeamID}]; found {
+			team.Visual = TeamVisual{Kind: TeamVisualMedia, Media: selectedMedia(logo.batch, logo.rights)}
+		}
+		team.VenuePhoto = PhotoSelection{Kind: PhotoPlaceholder}
 		if venue := displayValue(team.Venue); venue != nil {
 			if photo, found := chosen[[2]string{string(MediaVenuePhoto), venue.VenueID}]; found {
-				team.VenuePhoto = selectedMedia(photo.batch, photo.rights)
+				team.VenuePhoto = PhotoSelection{Kind: PhotoReusableMedia, Media: selectedMedia(photo.batch, photo.rights)}
 			}
 		}
+		team.PlayerPhotos = nil
 		if roster := displayValue(team.Roster); roster != nil {
 			for _, entry := range roster.Entries {
+				selection := PlayerPhotoSelection{PersonID: entry.PersonID,
+					Photo: PhotoSelection{Kind: PhotoPlaceholder}}
 				if photo, found := chosen[[2]string{string(MediaPlayerPhoto), entry.PersonID}]; found {
-					team.PlayerPhotos = append(team.PlayerPhotos, *selectedMedia(photo.batch, photo.rights))
+					selection.Photo = PhotoSelection{Kind: PhotoReusableMedia, Media: selectedMedia(photo.batch, photo.rights)}
 				}
+				team.PlayerPhotos = append(team.PlayerPhotos, selection)
 			}
 			sort.Slice(team.PlayerPhotos, func(a, b int) bool {
-				return team.PlayerPhotos[a].EntityID < team.PlayerPhotos[b].EntityID
+				return team.PlayerPhotos[a].PersonID < team.PlayerPhotos[b].PersonID
 			})
 		}
 	}

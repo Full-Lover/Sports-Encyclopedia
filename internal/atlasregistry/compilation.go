@@ -66,6 +66,36 @@ type SelectedMedia struct {
 	Rights        MediaRightsOption
 }
 
+type TeamVisualKind string
+
+const (
+	TeamVisualMedia        TeamVisualKind = "REUSABLE_MEDIA"
+	TeamVisualAbbreviation TeamVisualKind = "ABBREVIATION"
+)
+
+type TeamVisual struct {
+	Kind         TeamVisualKind
+	Media        *SelectedMedia
+	Abbreviation string
+}
+
+type PhotoSelectionKind string
+
+const (
+	PhotoReusableMedia PhotoSelectionKind = "REUSABLE_MEDIA"
+	PhotoPlaceholder   PhotoSelectionKind = "PLACEHOLDER"
+)
+
+type PhotoSelection struct {
+	Kind  PhotoSelectionKind
+	Media *SelectedMedia
+}
+
+type PlayerPhotoSelection struct {
+	PersonID string
+	Photo    PhotoSelection
+}
+
 type CompiledTeam struct {
 	TeamID       string
 	League       LeagueCode
@@ -78,9 +108,9 @@ type CompiledTeam struct {
 	Venue        CompiledGroup[VenueFact]
 	Leader       CompiledGroup[LeaderFact]
 	Roster       CompiledGroup[TeamRosterFact]
-	Logo         *SelectedMedia
-	VenuePhoto   *SelectedMedia
-	PlayerPhotos []SelectedMedia
+	Visual       TeamVisual
+	VenuePhoto   PhotoSelection
+	PlayerPhotos []PlayerPhotoSelection
 }
 
 type CompiledRegistryContent struct {

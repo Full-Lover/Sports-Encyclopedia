@@ -82,7 +82,7 @@ func compileRegistryContent(request CompileRequest, baseline CompiledRegistryCon
 			return CompiledRegistryContent{}, err
 		}
 		identity := displayValue(team.Identity)
-		if identity == nil {
+		if identity == nil || !validTeamAbbreviation(identity.OfficialAbbreviation) {
 			return CompiledRegistryContent{}, ErrCompilationRejected
 		}
 		var currentEvidence *OfficialSeasonEvidence
