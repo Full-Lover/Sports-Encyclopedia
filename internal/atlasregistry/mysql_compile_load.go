@@ -139,7 +139,7 @@ func loadStagedMedia(ctx context.Context, tx *sql.Tx, runID string) ([]stagedMed
 }
 
 func loadInheritedMedia(ctx context.Context, tx *sql.Tx, baseline CompiledRegistryContent) ([]stagedMedia, error) {
-	seen := make(map[[2]string]struct{})
+	seen := make(map[[6]string]struct{})
 	var assets []SelectedMedia
 	for _, team := range baseline.Teams {
 		if team.Visual.Media != nil {
@@ -156,7 +156,8 @@ func loadInheritedMedia(ctx context.Context, tx *sql.Tx, baseline CompiledRegist
 	}
 	var result []stagedMedia
 	for _, asset := range assets {
-		key := [2]string{asset.SourceID, asset.AssetID}
+		key := [6]string{asset.SourceID, asset.CapabilityKey, asset.AssetID,
+			asset.ContentHash, string(asset.Kind), asset.EntityID}
 		if _, duplicate := seen[key]; duplicate {
 			continue
 		}
