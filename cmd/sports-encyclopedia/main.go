@@ -21,8 +21,14 @@ func main() {
 }
 
 func run(args []string) error {
-	if len(args) != 1 || args[0] != "web" {
-		return errors.New("usage: sports-encyclopedia web")
+	if len(args) != 1 {
+		return errors.New("usage: sports-encyclopedia web|migrate|publish-preview")
+	}
+	if args[0] == "migrate" || args[0] == "publish-preview" {
+		return runPublicationCommand(args[0])
+	}
+	if args[0] != "web" {
+		return errors.New("usage: sports-encyclopedia web|migrate|publish-preview")
 	}
 
 	for _, asset := range []string{"web/dist/assets/app.js", "web/dist/assets/app.css"} {
@@ -44,20 +50,27 @@ func run(args []string) error {
 		return fmt.Errorf("load previous preview map: %w", err)
 	}
 
+	reader := publishedatlas.Reader(publishedatlas.NewMemoryReader(
+		preview,
+		previous,
+		publishedatlas.Preview0005MapDocument(),
+		publishedatlas.Preview0004MapDocument(),
+		publishedatlas.Preview0003MapDocument(),
+		publishedatlas.Preview0002MapDocument(),
+		publishedatlas.Preview0001MapDocument(),
+	))
+	if os.Getenv("SPORTS_DB_DSN") != "" {
+		db, err := openPublicationDB()
+		if err != nil {
+			return err
+		}
+		defer db.Close()
+		reader = publishedatlas.NewMySQLPublicationStore(db)
+	}
+
 	server := &http.Server{
-		Addr: address,
-		Handler: webexperience.New(
-			"web/dist",
-			publishedatlas.NewMemoryReader(
-				preview,
-				previous,
-				publishedatlas.Preview0005MapDocument(),
-				publishedatlas.Preview0004MapDocument(),
-				publishedatlas.Preview0003MapDocument(),
-				publishedatlas.Preview0002MapDocument(),
-				publishedatlas.Preview0001MapDocument(),
-			),
-		),
+		Addr:              address,
+		Handler:           webexperience.New("web/dist", reader),
 		ReadHeaderTimeout: 5 * time.Second,
 		ReadTimeout:       15 * time.Second,
 		WriteTimeout:      15 * time.Second,

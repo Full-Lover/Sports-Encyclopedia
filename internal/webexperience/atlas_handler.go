@@ -38,6 +38,10 @@ func registerAtlasRoutes(mux *http.ServeMux, reader publishedatlas.Reader) {
 				writeAtlasError(response, http.StatusNotFound, "SNAPSHOT_NOT_FOUND", "The requested snapshot is unavailable.")
 				return
 			}
+			if errors.As(err, &fault) && fault.Code == publishedatlas.FaultStorageUnavailable {
+				writeAtlasError(response, http.StatusServiceUnavailable, "STORAGE_UNAVAILABLE", "The atlas is temporarily unavailable.")
+				return
+			}
 			writeAtlasError(response, http.StatusInternalServerError, "INTERNAL_ERROR", "The request could not be completed.")
 			return
 		}

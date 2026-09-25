@@ -76,6 +76,14 @@ func TestHealth(t *testing.T) {
 	}
 }
 
+func TestHealthWithoutPublishedSnapshot(t *testing.T) {
+	response := httptest.NewRecorder()
+	New(t.TempDir(), publishedatlas.NewMemoryReader()).ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/healthz", nil))
+	if response.Code != http.StatusServiceUnavailable {
+		t.Fatalf("health status = %d, want %d", response.Code, http.StatusServiceUnavailable)
+	}
+}
+
 func TestFaviconIsEmptyUntilBrandingIsDecided(t *testing.T) {
 	request := httptest.NewRequest(http.MethodGet, "/favicon.ico", nil)
 	response := httptest.NewRecorder()

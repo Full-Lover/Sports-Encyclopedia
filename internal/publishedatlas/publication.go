@@ -68,6 +68,8 @@ var (
 	ErrBaseChanged           = errors.New("publication base changed")
 	ErrCandidateInvalid      = errors.New("publication candidate invalid")
 	ErrProfileDowngrade      = errors.New("publication profile downgrade")
+	ErrPublicationPaused     = errors.New("publication paused")
+	ErrSchemaUnsupported     = errors.New("publication schema unsupported")
 )
 
 type LeaseAcquisition struct {
@@ -125,7 +127,11 @@ func (publisher *Publisher) Execute(ctx context.Context, runID string, build fun
 	default:
 		return PublicationExecution{Kind: "NOT_PUBLISHED", Fault: fmt.Errorf("unknown lease result %q", acquired.Kind)}
 	}
-	defer func() { _ = publisher.store.ReleaseLease(context.Background(), runID, token) }()
+	defer func() {
+		releaseCtx, releaseCancel := context.WithTimeout(context.Background(), 3*time.Second)
+		defer releaseCancel()
+		_ = publisher.store.ReleaseLease(releaseCtx, runID, token)
+	}()
 	buildCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
 	var leaseLost atomic.Bool

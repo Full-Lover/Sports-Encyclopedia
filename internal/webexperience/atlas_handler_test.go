@@ -224,6 +224,15 @@ func TestMapDocumentRejectsAnEmptyReaderResult(t *testing.T) {
 	assertAtlasError(t, response, http.StatusInternalServerError, "INTERNAL_ERROR")
 }
 
+func TestMapDocumentReturnsServiceUnavailableForStorageFault(t *testing.T) {
+	handler := New(t.TempDir(), readerFunc(func(context.Context, publishedatlas.ReadRequest) (publishedatlas.ReadResult, error) {
+		return publishedatlas.ReadResult{}, &publishedatlas.ReadFault{Code: publishedatlas.FaultStorageUnavailable}
+	}))
+	response := httptest.NewRecorder()
+	handler.ServeHTTP(response, httptest.NewRequest(http.MethodGet, "/_atlas/snapshots/preview-0007/map", nil))
+	assertAtlasError(t, response, http.StatusServiceUnavailable, "STORAGE_UNAVAILABLE")
+}
+
 func assertAtlasError(t *testing.T, response *httptest.ResponseRecorder, status int, code string) {
 	t.Helper()
 	if response.Code != status {

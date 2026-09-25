@@ -28,7 +28,11 @@ func New(staticDir string, atlasReader publishedatlas.Reader) http.Handler {
 		"/assets/",
 		http.FileServer(http.Dir(filepath.Join(staticDir, "assets"))),
 	)))
-	mux.HandleFunc("GET /healthz", func(response http.ResponseWriter, _ *http.Request) {
+	mux.HandleFunc("GET /healthz", func(response http.ResponseWriter, request *http.Request) {
+		if result, err := atlasReader.Read(request.Context(), publishedatlas.ReadRequest{Kind: publishedatlas.ReadHome}); err != nil || result.Home == nil {
+			http.Error(response, "The atlas is temporarily unavailable.", http.StatusServiceUnavailable)
+			return
+		}
 		response.Header().Set("Content-Type", "text/plain; charset=utf-8")
 		response.WriteHeader(http.StatusOK)
 		_, _ = response.Write([]byte("ok\n"))

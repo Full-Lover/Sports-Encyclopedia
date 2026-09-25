@@ -150,10 +150,11 @@ type ReadResult struct {
 type ReadFaultCode string
 
 const (
-	FaultInvalidRequest  ReadFaultCode = "INVALID_REQUEST"
-	FaultSnapshotMissing ReadFaultCode = "SNAPSHOT_NOT_FOUND"
-	FaultNotPublished    ReadFaultCode = "SNAPSHOT_NOT_PUBLISHED"
-	FaultTeamMissing     ReadFaultCode = "TEAM_NOT_FOUND"
+	FaultInvalidRequest     ReadFaultCode = "INVALID_REQUEST"
+	FaultSnapshotMissing    ReadFaultCode = "SNAPSHOT_NOT_FOUND"
+	FaultNotPublished       ReadFaultCode = "SNAPSHOT_NOT_PUBLISHED"
+	FaultTeamMissing        ReadFaultCode = "TEAM_NOT_FOUND"
+	FaultStorageUnavailable ReadFaultCode = "STORAGE_UNAVAILABLE"
 )
 
 type ReadFault struct {
